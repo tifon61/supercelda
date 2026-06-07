@@ -63,8 +63,18 @@
         <!-- Panel Izquierdo: Controles Físicos -->
         <div class="panel w-80 flex flex-col gap-6">
             <div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Supercelda Lab</h1>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Tormentas Lab</h1>
                 <p class="text-xs text-slate-400 mt-1">Modelo Matemático Interactivo</p>
+            </div>
+
+            <!-- Selector de Tipo de Tormenta -->
+            <div>
+                <label class="text-sm font-semibold mb-2 block text-slate-200">Tipo de Tormenta</label>
+                <select id="storm-type" class="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <option value="single">Unicelular (Masa de aire)</option>
+                    <option value="multi">Multicelular (Línea de turbonada)</option>
+                    <option value="super" selected>Supercelda (Clásica)</option>
+                </select>
             </div>
 
             <!-- Controles -->
@@ -119,11 +129,11 @@
 
         <!-- Panel Derecho: Visor Matemático -->
         <div class="panel w-96 flex flex-col gap-4">
-            <h2 class="text-lg font-bold border-b border-slate-700 pb-2">Matemática en Tiempo Real</h2>
+            <h2 class="text-lg font-bold border-b border-slate-700 pb-2" id="math-title">Matemática: Supercelda</h2>
             
             <div>
-                <h3 class="text-sm font-semibold text-slate-200">1. Perfil de Viento Ambiental</h3>
-                <p class="text-xs text-slate-400">Ecuación vectorial dependiente de Z (altura) y Cizalladura ($\gamma$).</p>
+                <h3 class="text-sm font-semibold text-slate-200" id="math-h-wind">1. Perfil de Viento Ambiental</h3>
+                <p class="text-xs text-slate-400" id="math-p-wind">Ecuación vectorial dependiente de Z (altura) y Cizalladura ($\gamma$).</p>
                 <code class="math-font" id="math-wind">
                     V(z) = V_0 + γ·z<br>
                     u(z) = cos(θ_z) * |V|<br>
@@ -132,8 +142,8 @@
             </div>
 
             <div>
-                <h3 class="text-sm font-semibold text-slate-200 mt-2">2. Corriente Ascendente (Updraft)</h3>
-                <p class="text-xs text-slate-400">Trayectoria de parcela de aire con rotación (ω) y advección por viento ambiental.</p>
+                <h3 class="text-sm font-semibold text-slate-200 mt-2" id="math-h-up">2. Corriente Ascendente (Updraft)</h3>
+                <p class="text-xs text-slate-400" id="math-p-up">Trayectoria de parcela de aire con rotación (ω) y advección por viento ambiental.</p>
                 <code class="math-font" id="math-updraft">
                     dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>
                     dθ/dt = ω = <span id="eq-omega">0.00</span><br>
@@ -142,10 +152,10 @@
                 </code>
             </div>
 
-            <div>
-                <h3 class="text-sm font-semibold text-slate-200 mt-2">3. Frentes de Ráfagas (FFD/RFD)</h3>
-                <p class="text-xs text-slate-400">Caída de hidrometeoros y divergencia en superficie (conservación de masa).</p>
-                <code class="math-font">
+            <div id="math-section-fronts">
+                <h3 class="text-sm font-semibold text-slate-200 mt-2" id="math-h-fronts">3. Frentes de Ráfagas</h3>
+                <p class="text-xs text-slate-400" id="math-p-fronts">Caída de hidrometeoros y divergencia en superficie.</p>
+                <code class="math-font" id="math-fronts-eq">
                     ∇·V = 0 (en superficie)<br>
                     V_radial = k / r^2
                 </code>
@@ -176,6 +186,7 @@
 
         // Variables Globales de Simulación (Conectadas a la UI)
         let PARAMS = {
+            type: 'super', // 'single', 'multi', 'super'
             shear: 1.0,
             helicity: 1.5,
             cape: 2.0,
@@ -220,20 +231,24 @@
 
         // Función Matemática del Viento: Retorna el vector viento a una altura Y dada la cizalladura
         function calculateWindAtHeight(y, shear) {
-            // Basado en la hodógrafa: El viento rota (dirección) y aumenta (magnitud) con la altura
             const baseSpeed = 0.5;
-            const surfaceAngle = Math.PI * 1.25; // Viento del SE en superficie (Inflow)
             
-            // Giro horario con la altura (típico hemisferio norte, o ajustado para el modelo)
-            const angle = surfaceAngle - (y * shear * 0.15); 
-            // Aumento de velocidad con altura (Perfil logarítmico/lineal simplificado)
-            const speed = baseSpeed + (y * shear * 0.5);
-
-            return new THREE.Vector3(
-                Math.cos(angle) * speed,
-                0, // El viento ambiental es horizontal
-                Math.sin(angle) * speed
-            );
+            if (PARAMS.type === 'single') {
+                // Viento débil, sin cizalladura significativa
+                return new THREE.Vector3(baseSpeed, 0, 0);
+            } 
+            else if (PARAMS.type === 'multi') {
+                // Cizalladura unidireccional (aumenta velocidad, no cambia dirección)
+                const speed = baseSpeed + (y * shear * 0.8);
+                return new THREE.Vector3(speed, 0, baseSpeed * 0.5);
+            } 
+            else {
+                // Supercelda: Cizalladura direccional y de velocidad (Hodógrafa curva)
+                const surfaceAngle = Math.PI * 1.25; 
+                const angle = surfaceAngle - (y * shear * 0.15); 
+                const speed = baseSpeed + (y * shear * 0.5);
+                return new THREE.Vector3(Math.cos(angle) * speed, 0, Math.sin(angle) * speed);
+            }
         }
 
         // Crear grilla de flechas en 3 niveles (Superficie, Medio, Alto)
@@ -313,11 +328,7 @@
         // Línea del FFD Gust Front (Frente de Ráfaga Delantero)
         const ffdFrontGeo = new THREE.BufferGeometry();
         const ffdFrontPoints = [];
-        for(let i=0; i<=20; i++) {
-            let t = i/20;
-            // Curva parabólica hacia adelante (Z positivo, X positivo)
-            ffdFrontPoints.push(new THREE.Vector3(5 + t*15, 0.1, -5 + t*25));
-        }
+        for(let i=0; i<=40; i++) ffdFrontPoints.push(new THREE.Vector3(0,0,0)); // Inicializamos con 40 puntos
         ffdFrontGeo.setFromPoints(ffdFrontPoints);
         const ffdFrontMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
         const ffdFrontLine = new THREE.Line(ffdFrontGeo, ffdFrontMat);
@@ -326,16 +337,33 @@
         // Línea del RFD Gust Front (Frente de Ráfaga Trasero - forma de gancho)
         const rfdFrontGeo = new THREE.BufferGeometry();
         const rfdFrontPoints = [];
-        for(let i=0; i<=20; i++) {
-            let t = (i/20) * Math.PI; // Curva envolvente
-            let r = 3 + t*2;
-            ffdFrontPoints.push(new THREE.Vector3(-r*Math.cos(t), 0.1, -r*Math.sin(t)));
-        }
-        rfdFrontGeo.setFromPoints(ffdFrontPoints);
+        for(let i=0; i<=40; i++) rfdFrontPoints.push(new THREE.Vector3(0,0,0));
+        rfdFrontGeo.setFromPoints(rfdFrontPoints);
         const rfdFrontMat = new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 3 });
         const rfdFrontLine = new THREE.Line(rfdFrontGeo, rfdFrontMat);
         frontsGroup.add(rfdFrontLine);
 
+
+        document.getElementById('storm-type').addEventListener('change', (e) => {
+            PARAMS.type = e.target.value;
+            const helicityInput = document.getElementById('helicity');
+            
+            // Ajustar controles según el tipo
+            if (PARAMS.type === 'single') {
+                helicityInput.disabled = true;
+                document.getElementById('shear').value = 0.2; // Baja cizalladura
+                PARAMS.shear = 0.2;
+                document.getElementById('val-shear').innerText = "0.2";
+            } else if (PARAMS.type === 'multi') {
+                helicityInput.disabled = true;
+                document.getElementById('shear').value = 1.5; // Alta cizalladura unidireccional
+                PARAMS.shear = 1.5;
+                document.getElementById('val-shear').innerText = "1.5";
+            } else {
+                helicityInput.disabled = false;
+            }
+            updateMathPanelTexts();
+        });
 
         document.getElementById('shear').addEventListener('input', (e) => {
             PARAMS.shear = parseFloat(e.target.value);
@@ -359,6 +387,30 @@
         document.getElementById('show-fronts').addEventListener('change', (e) => { frontsGroup.visible = e.target.checked; });
 
         // Update Text Panel Math
+        function updateMathPanelTexts() {
+            const title = document.getElementById('math-title');
+            const mathWind = document.getElementById('math-wind');
+            const eqUp = document.getElementById('math-updraft');
+            const mathFronts = document.getElementById('math-fronts-eq');
+
+            if (PARAMS.type === 'single') {
+                title.innerText = "Matemática: Celda Unicelular";
+                mathWind.innerHTML = `V(z) ≈ V_0<br>...viento ambiental constante.`;
+                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>x(t) ≈ 0, y(t) ≈ 0<br>...ascenso vertical sin rotación.`;
+                mathFronts.innerHTML = `V_radial = k / r^2<br>...divergencia simétrica (microburst).`;
+            } else if (PARAMS.type === 'multi') {
+                title.innerText = "Matemática: Sistema Multicelular";
+                mathWind.innerHTML = `V(z) = V_0 + γ·z (Unidireccional)<br>...cizalladura empuja la tormenta.`;
+                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>x(t) = Línea de convergencia<br>...ascenso inclinado por cizalladura.`;
+                mathFronts.innerHTML = `V_x = V_storm + V_outflow<br>...frente avanza linealmente (Gust Front).`;
+            } else {
+                title.innerText = "Matemática: Supercelda";
+                mathWind.innerHTML = `V(z) = V_0 + γ·z<br>u(z) = cos(θ_z) * |V|<br>v(z) = sin(θ_z) * |V|`;
+                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>dθ/dt = ω = <span id="eq-omega">0.00</span><br>x(t) = r·cos(ωt) + u(z)t`;
+                mathFronts.innerHTML = `∇·V = 0 (en superficie)<br>...interacción compleja FFD/RFD.`;
+            }
+        }
+
         function updateMathPanel() {
             // Actualizar panel con valores de las ecuaciones
             const baseW = (PARAMS.cape * 0.1).toFixed(3);
@@ -379,123 +431,152 @@
             const dt = clock.getDelta();
             const time = clock.getElapsedTime();
 
-            // 1. Actualizar Vectores de Viento (La matemática del viento ambiental)
+            // 1. Actualizar Vectores de Viento
             windArrows.forEach(obj => {
                 const vector = calculateWindAtHeight(obj.y, PARAMS.shear);
                 obj.arrow.setDirection(vector.clone().normalize());
-                // Escalamos visualmente la flecha según la magnitud
                 obj.arrow.setLength(1 + vector.length() * 0.3, 0.4, 0.2);
             });
 
-            // 2. Lógica del Updraft (Corriente Ascendente)
-            // Matemática: Ascenso vertical (CAPE) + Rotación (Helicidad) + Inclinación por Viento (Shear)
             let w_speed = PARAMS.cape * 4; 
-            let omega = PARAMS.helicity * 2;
+            let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0; // Solo rota la supercelda
 
+            // 2. Lógica del Updraft
             for(let i=0; i<updraftSys.data.length; i++) {
                 let p = updraftSys.data[i];
-                p.life += dt * 0.2; // Envejecimiento
-                if(p.life > 1) {
-                    p.life = 0; // Renace en la base
-                    p.radius = 1 + Math.random()*3;
+                p.life += dt * 0.2; 
+                if(p.life > 1) { p.life = 0; p.radius = 1 + Math.random()*3; }
+
+                let y = p.life * 25; 
+                p.angle += dt * omega * (1 - p.life*0.5); 
+
+                let currentRadius = p.radius + (y > 15 ? (y - 15) * 1.5 : 0);
+                let x = 0, z = 0;
+
+                if (PARAMS.type === 'single') {
+                    // Crece recto hacia arriba, angosto
+                    x = Math.cos(p.angle) * currentRadius * 0.5;
+                    z = Math.sin(p.angle) * currentRadius * 0.5;
+                } else if (PARAMS.type === 'multi') {
+                    // Forma una línea en el eje X
+                    x = (p.angle % (Math.PI*2) / (Math.PI*2) - 0.5) * 25; // Distribución lineal
+                    z = (Math.random() - 0.5) * 3; // Grosor de la línea
+                    // Inclinación por el viento (Cizalladura unidireccional)
+                    x += (y * y) * PARAMS.shear * 0.01;
+                } else {
+                    // Supercelda clásica
+                    x = Math.cos(p.angle) * currentRadius;
+                    z = Math.sin(p.angle) * currentRadius;
+                    x += (y * y) * PARAMS.shear * 0.015;
+                    z += (y * y) * PARAMS.shear * 0.005;
                 }
 
-                // Altura (z matemático, aquí Y en ThreeJS)
-                let y = p.life * 25; 
-                
-                // Rotación (Vorticidad)
-                p.angle += dt * omega * (1 - p.life*0.5); // Rota más rápido en la base
-
-                // Expansión en la cima (Anvil / Yunque)
-                let expansion = y > 15 ? (y - 15) * 1.5 : 0;
-                let currentRadius = p.radius + expansion;
-
-                // Posición ideal sin viento
-                let x = Math.cos(p.angle) * currentRadius;
-                let z = Math.sin(p.angle) * currentRadius;
-
-                // Aplicar advección del viento (La Inclinación)
-                // Integramos el efecto del viento a lo largo de la altura
-                let windDriftX = 0;
-                let windDriftZ = 0;
-                // Simplificación computacional de la integral del viento:
-                windDriftX = (y * y) * PARAMS.shear * 0.015;
-                windDriftZ = (y * y) * PARAMS.shear * 0.005;
-
-                updraftSys.positions[i*3] = x + windDriftX;
+                updraftSys.positions[i*3] = x;
                 updraftSys.positions[i*3+1] = y;
-                updraftSys.positions[i*3+2] = z + windDriftZ;
+                updraftSys.positions[i*3+2] = z;
             }
             updraftSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 3. Lógica del FFD (Forward Flank Downdraft - Precipitación pesada delantera)
+            // 3. Lógica del FFD (Precipitación Principal)
             for(let i=0; i<ffdSys.data.length; i++) {
                 let p = ffdSys.data[i];
                 let y = ffdSys.positions[i*3+1];
                 
                 if(y <= 0.1) {
-                    // Si toca el suelo: Expansión radial (Divergencia del frente de ráfagas)
-                    p.life -= dt; // Uso life como timer en el suelo
+                    p.life -= dt; 
                     if(p.life < 0) {
-                        // Renace arriba en la zona del yunque delantero
                         ffdSys.positions[i*3+1] = 12 + Math.random()*8;
-                        ffdSys.positions[i*3] = 5 + Math.random()*15; // Adelante (X positivo)
-                        ffdSys.positions[i*3+2] = 5 + Math.random()*15; // Adelante (Z positivo)
+                        if (PARAMS.type === 'single') {
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*8; // Cae en el centro
+                            ffdSys.positions[i*3+2] = (Math.random()-0.5)*8;
+                        } else if (PARAMS.type === 'multi') {
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; // Cae a lo largo de la línea
+                            ffdSys.positions[i*3+2] = -4 - Math.random()*6; // Cae detrás de la línea de updrafts
+                        } else {
+                            ffdSys.positions[i*3] = 5 + Math.random()*15; // Adelante derecha
+                            ffdSys.positions[i*3+2] = 5 + Math.random()*15;
+                        }
                         p.life = 1;
                     } else {
-                        // Se expande por el suelo (Outflow)
-                        ffdSys.positions[i*3] += Math.random() * 0.5 * dt;
-                        ffdSys.positions[i*3+2] += Math.random() * 0.5 * dt;
+                        // Divergencia en suelo
+                        ffdSys.positions[i*3] += (ffdSys.positions[i*3] > 0 ? 1 : -1) * Math.random() * dt * 2;
+                        ffdSys.positions[i*3+2] += (ffdSys.positions[i*3+2] > 0 ? 1 : -1) * Math.random() * dt * 2;
                     }
                 } else {
-                    // Cayendo (Downdraft) arrastrado por el viento
                     let fallSpeed = 5 + Math.random()*3;
                     ffdSys.positions[i*3+1] -= fallSpeed * dt;
-                    // Viento empuja la lluvia hacia adelante
                     let wind = calculateWindAtHeight(y, PARAMS.shear);
-                    ffdSys.positions[i*3] += wind.x * dt;
-                    ffdSys.positions[i*3+2] += wind.z * dt;
+                    // En unicelular no hay arrastre fuerte, en multi y super sí
+                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt);
+                    ffdSys.positions[i*3+2] += (PARAMS.type === 'single' ? 0 : wind.z * dt);
                 }
             }
             ffdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 4. Lógica del RFD (Rear Flank Downdraft - Gancho trasero envolvente)
-            for(let i=0; i<rfdSys.data.length; i++) {
-                let p = rfdSys.data[i];
-                let y = rfdSys.positions[i*3+1];
-                
-                if(y <= 0.1) {
-                    p.life -= dt;
-                    if(p.life < 0) {
-                        // Renace a nivel medio, detrás del updraft (Z negativo, X negativo)
-                        rfdSys.positions[i*3+1] = 8 + Math.random()*5;
-                        rfdSys.positions[i*3] = -5 - Math.random()*5; 
-                        rfdSys.positions[i*3+2] = -5 + Math.random()*5;
-                        p.life = 1;
-                        p.angle = Math.PI; // Inicia detrás
+            // 4. Lógica del RFD (Solo activo en Supercelda)
+            rfdSys.points.visible = document.getElementById('show-ffdrfd').checked && PARAMS.type === 'super';
+            if (PARAMS.type === 'super') {
+                for(let i=0; i<rfdSys.data.length; i++) {
+                    let p = rfdSys.data[i];
+                    let y = rfdSys.positions[i*3+1];
+                    // (Lógica existente de la supercelda)
+                    if(y <= 0.1) {
+                        p.life -= dt;
+                        if(p.life < 0) {
+                            rfdSys.positions[i*3+1] = 8 + Math.random()*5;
+                            rfdSys.positions[i*3] = -5 - Math.random()*5; 
+                            rfdSys.positions[i*3+2] = -5 + Math.random()*5;
+                            p.life = 1; p.angle = Math.PI; 
+                        } else {
+                            p.angle -= dt * 2; 
+                            let r = 2 + p.life * 3;
+                            rfdSys.positions[i*3] = Math.cos(p.angle) * r;
+                            rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
+                        }
                     } else {
-                        // Flujo en superficie envolviendo el updraft
-                        p.angle -= dt * 2; // Gira hacia adentro
-                        let r = 2 + p.life * 3;
-                        rfdSys.positions[i*3] = Math.cos(p.angle) * r;
-                        rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
+                        rfdSys.positions[i*3+1] -= (6 + Math.random()*2) * dt;
+                        p.angle -= dt * PARAMS.helicity * 0.5; 
+                        let currentR = 4 + y*0.2;
+                        rfdSys.positions[i*3] = Math.cos(p.angle) * currentR;
+                        rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
                     }
+                }
+                rfdSys.points.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // 5. Dibujar Frentes de ráfagas según tipo
+            let ptsFront1 = ffdFrontLine.geometry.attributes.position.array;
+            let ptsFront2 = rfdFrontLine.geometry.attributes.position.array;
+            
+            for(let i=0; i<=40; i++) {
+                let t = i/40;
+                let scalePulse = 1 + Math.sin(time * 2) * 0.05; // Pulso de expansión
+                
+                if (PARAMS.type === 'single') {
+                    // Frente circular (microburst)
+                    let angle = t * Math.PI * 2;
+                    let radius = 8 * scalePulse;
+                    ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
+                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -1; ptsFront2[i*3+2] = 0; // Ocultar el segundo frente
+                } else if (PARAMS.type === 'multi') {
+                    // Frente lineal avanzando (Squall line gust front)
+                    let xPos = (t - 0.5) * 35;
+                    let zPos = 8 * scalePulse; // Avanza en Z positivo
+                    ptsFront1[i*3] = xPos; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = zPos;
+                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -1; ptsFront2[i*3+2] = 0; // Ocultar
                 } else {
-                    // Cayendo violentamente y envolviendo
-                    ffdSys.positions[i*3+1] -= 8 * dt; // RFD suele ser rápido
-                    p.angle -= dt * PARAMS.helicity * 0.5; // Arrastrado por la rotación general
-                    let currentR = 4 + y*0.2;
-                    rfdSys.positions[i*3] = Math.cos(p.angle) * currentR;
-                    rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
-                    rfdSys.positions[i*3+1] -= (6 + Math.random()*2) * dt;
+                    // Supercelda: FFD y RFD intersectando
+                    // FFD (Parábola delantera)
+                    ptsFront1[i*3] = 5 + (t)*15 * scalePulse; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = -5 + (t)*25 * scalePulse;
+                    // RFD (Gancho trasero envolvente)
+                    let angleRFD = t * Math.PI;
+                    let rRFD = (3 + t*2) * scalePulse;
+                    ptsFront2[i*3] = -rRFD*Math.cos(angleRFD); ptsFront2[i*3+1] = 0.1; ptsFront2[i*3+2] = -rRFD*Math.sin(angleRFD);
                 }
             }
-            rfdSys.points.geometry.attributes.position.needsUpdate = true;
-
-            // 5. Animar Frentes de ráfagas (Ligera pulsación)
-            let scalePulse = 1 + Math.sin(time * 2) * 0.02;
-            ffdFrontLine.scale.set(scalePulse, 1, scalePulse);
-            rfdFrontLine.scale.set(scalePulse, 1, scalePulse);
+            ffdFrontLine.geometry.attributes.position.needsUpdate = true;
+            rfdFrontLine.geometry.attributes.position.needsUpdate = true;
+            rfdFrontLine.visible = document.getElementById('show-fronts').checked && (PARAMS.type === 'super');
 
             updateMathPanel();
             controls.update();
@@ -510,6 +591,7 @@
         });
 
         // Iniciar el bucle de animación
+        updateMathPanelTexts(); // Llamar una vez al inicio para setear textos
         animate();
 
     </script>
