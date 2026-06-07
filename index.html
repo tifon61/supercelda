@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Simulador de Supercelda</title>
+    <meta charset="UTF-8">
+    <title>Simulador de Supercelda 3D</title>
     <style>
         body { margin: 0; overflow: hidden; background: #050505; }
-        #ui { position: absolute; top: 20px; left: 20px; color: white; font-family: sans-serif; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; }
+        #ui { position: absolute; top: 20px; left: 20px; color: white; font-family: sans-serif; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; z-index: 10; }
     </style>
 </head>
 <body>
     <div id="ui">
-        <h3>Control de Cizalladura (Shear)</h3>
+        <h3>Simulación Meteorológica</h3>
+        <label>Cizalladura (Shear):</label><br>
         <input type="range" id="shearRange" min="0" max="2" step="0.1" value="0.5">
-        <p>Ajusta para ver la deformación del mesociclón</p>
     </div>
 
+    <!-- Importamos Three.js desde CDN -->
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
     </script>
@@ -21,51 +23,78 @@
     <script type="module">
         import * as THREE from 'three';
 
+        // 1. Configuración de la Escena
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // 2. Partículas (La Nube)
         const count = 3000;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
         for(let i = 0; i < count * 3; i++) positions[i] = (Math.random() - 0.5) * 10;
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        
-        const material = new THREE.PointsMaterial({ size: 0.04, color: 0x00aaff });
+        const material = new THREE.PointsMaterial({ size: 0.05, color: 0x00aaff, transparent: true, opacity: 0.6 });
         const particles = new THREE.Points(geometry, material);
         scene.add(particles);
 
-        camera.position.z = 15;
-        camera.position.y = 2;
+        // 3. Vectores de Viento (La Matemática del campo)
+        const vectorGroup = new THREE.Group();
+        scene.add(vectorGroup);
+        const arrows = [];
+        const gridSize = 4;
+        for(let x = -gridSize; x <= gridSize; x += 2) {
+            for(let z = -gridSize; z <= gridSize; z += 2) {
+                const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x, -2, z), 1, 0xffff00);
+                vectorGroup.add(arrow);
+                arrows.push({ arrow, x, z });
+            }
+        }
 
-        // Variable de control
+        camera.position.set(10, 5, 10);
+        camera.lookAt(0, 0, 0);
+
+        // 4. Animación
         const shearInput = document.getElementById('shearRange');
 
         function animate() {
             requestAnimationFrame(animate);
-            const positions = particles.geometry.attributes.position.array;
-            const shear = parseFloat(shearInput.value); // Obtenemos el valor del slider
+            const shear = parseFloat(shearInput.value);
+            const pos = particles.geometry.attributes.position.array;
             
+            // Lógica de la Nube
             for(let i = 0; i < count; i++) {
-                let y = positions[i*3 + 1];
-                
-                if(y > 5) positions[i*3 + 1] = -5;
+                let y = pos[i*3 + 1];
+                if(y > 5) pos[i*3 + 1] = -5;
                 else {
-                    positions[i*3 + 1] += 0.03; 
-                    // LA MATEMÁTICA: La cizalladura deforma el radio de rotación
-                    // A mayor altura, mayor efecto del viento (shear)
+                    pos[i*3 + 1] += 0.03;
                     let radius = 0.5 + (y * shear * 0.2); 
-                    positions[i*3] = Math.cos(y * 2) * radius;
-                    positions[i*3 + 2] = Math.sin(y * 2) * radius;
+                    pos[i*3] = Math.cos(y * 2) * radius;
+                    pos[i*3 + 2] = Math.sin(y * 2) * radius;
                 }
             }
             particles.geometry.attributes.position.needsUpdate = true;
-            particles.rotation.y += 0.005; // Rotación lenta de la cámara/escena
+
+            // Lógica de Vectores
+            arrows.forEach(a => {
+                let angle = Math.atan2(a.z, a.x) + (shear * 0.5);
+                a.arrow.setDirection(new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).normalize());
+                a.arrow.setLength(0.5 + (shear * 0.5));
+            });
+
+            particles.rotation.y += 0.005;
             renderer.render(scene, camera);
         }
         animate();
+
+        // Ajustar al cambiar ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
