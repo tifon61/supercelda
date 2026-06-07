@@ -412,17 +412,19 @@
         }
 
         function updateMathPanel() {
-            // Actualizar panel con valores de las ecuaciones
-            const baseW = (PARAMS.cape * 0.1).toFixed(3);
-            document.getElementById('eq-w').innerText = `${baseW} m/s`;
+            // Actualizar panel con valores de las ecuaciones de forma segura (evita cuelgues)
+            const elW = document.getElementById('eq-w');
+            if (elW) {
+                const baseW = (PARAMS.cape * 0.1).toFixed(3);
+                elW.innerText = `${baseW} m/s`;
+            }
             
-            const omega = (PARAMS.helicity * 0.05).toFixed(3);
-            document.getElementById('eq-omega').innerText = `${omega} rad/s`;
-
-            const mathWind = document.getElementById('math-wind');
-            mathWind.innerHTML = `V(z) = V_0 + (${PARAMS.shear.toFixed(1)})·z<br>...cizalladura deformando la estructura.`;
+            const elOmega = document.getElementById('eq-omega');
+            if (elOmega) {
+                const omega = (PARAMS.helicity * 0.05).toFixed(3);
+                elOmega.innerText = `${omega} rad/s`;
+            }
         }
-
 
         const clock = new THREE.Clock();
 
