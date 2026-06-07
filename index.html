@@ -384,6 +384,37 @@
             const dt = clock.getDelta();
             const time = clock.getElapsedTime();
 
+            // --- Control del Tiempo de Vida ---
+            if (PARAMS.isPlaying) {
+                PARAMS.lifecycle += dt * 0.04; // ~25 segundos por ciclo completo
+                if (PARAMS.lifecycle > 1) PARAMS.lifecycle = 0;
+                document.getElementById('lifecycle-slider').value = PARAMS.lifecycle * 100;
+            } else {
+                PARAMS.lifecycle = parseFloat(document.getElementById('lifecycle-slider').value) / 100;
+            }
+
+            let t = PARAMS.lifecycle;
+            let stageName = "";
+            let gfScale = 1;
+
+            // Determinar Etapas y Escalas de Frente de Ráfaga
+            if (PARAMS.type === 'single') {
+                if (t < 0.33) { stageName = "1. Cúmulus (Ascenso neto)"; gfScale = 0; }
+                else if (t < 0.66) { stageName = "2. Madurez (Lluvia y microrráfaga)"; gfScale = (t-0.33)/0.33; }
+                else { stageName = "3. Disipación (Corte de ascenso por lluvia)"; gfScale = 1 + (t-0.66)/0.34; }
+            } else if (PARAMS.type === 'multi') {
+                if (t < 0.33) { stageName = "1. Nacimiento (Nuevas celdas)"; gfScale = 0; }
+                else if (t < 0.66) { stageName = "2. Madurez (Avance sobre gust front)"; gfScale = (t-0.33)/0.33; }
+                else { stageName = "3. Disipación (Lluvia estratiforme)"; gfScale = 1 + (t-0.66)/0.34; }
+            } else {
+                if (t < 0.33) { stageName = "1. Organización / Splitting"; gfScale = 0.2; }
+                else if (t < 0.66) { stageName = "2. Madurez (Mesociclón y Gancho)"; gfScale = 0.5 + (t-0.33); }
+                else { stageName = "3. Oclusión (Fase Tornado)"; gfScale = 1.5; }
+            }
+            
+            const stageLabel = document.getElementById('stage-name');
+            if(stageLabel) stageLabel.innerText = stageName;
+
             // Actualizar Vectores de Viento
             if(!PARAMS.radarMode) {
                 windArrows.forEach(obj => {
@@ -395,15 +426,27 @@
 
             let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0;
 
-            // 1. UPDRAFT (Corriente Ascendente)
+            // 1. UPDRAFT (Corriente Ascendente) - Reacciona al tiempo
             for(let i=0; i<updraftSys.data.length; i++) {
                 let p = updraftSys.data[i];
                 p.life += dt * 0.2; 
                 if(p.life > 1) { p.life = 0; p.radius = 1 + Math.random()*3; p.angle = Math.random() * Math.PI * 2; }
 
                 let y = p.life * 25; 
-                p.angle += dt * omega * (1 - p.life*0.5); 
+                let showUpdraft = true;
 
+                // Lógica de ciclo de vida visual
+                if (PARAMS.type === 'single' || PARAMS.type === 'multi') {
+                    if (t < 0.33 && p.life > (t/0.33)) showUpdraft = false; // Nube creciendo (no llegó al tope)
+                    if (t > 0.66 && p.life < ((t-0.66)/0.34)) showUpdraft = false; // Disipación (se corta abajo)
+                }
+
+                if (!showUpdraft) {
+                    updraftSys.positions[i*3] = 0; updraftSys.positions[i*3+1] = -100; updraftSys.positions[i*3+2] = 0;
+                    continue;
+                }
+
+                p.angle += dt * omega * (1 - p.life*0.5); 
                 let currentRadius = p.radius + (y > 15 ? (y - 15) * 1.5 : 0);
                 let x = 0, z = 0;
 
@@ -412,18 +455,26 @@
                 } else if (PARAMS.type === 'multi') {
                     x = (p.angle % (Math.PI*2) / (Math.PI*2) - 0.5) * 25; z = (Math.random() - 0.5) * 3;
                     x += (y * y) * PARAMS.shear * 0.01;
+                    if(t >= 0.33) z += gfScale * 10 * (1 - p.life); // Se inclina con el avance del frente
                 } else {
                     x = Math.cos(p.angle) * currentRadius; z = Math.sin(p.angle) * currentRadius;
                     x += (y * y) * PARAMS.shear * 0.015; z += (y * y) * PARAMS.shear * 0.005;
+                    if (t > 0.66) { x *= 0.4; z *= 0.4; } // Oclusión: Mesociclón se contrae (Tornado)
                 }
                 updraftSys.positions[i*3] = x; updraftSys.positions[i*3+1] = y; updraftSys.positions[i*3+2] = z;
             }
             updraftSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 2. FFD (Lluvia Delantera)
+            // 2. FFD (Lluvia Principal) - Cae luego de madurar
             for(let i=0; i<ffdSys.data.length; i++) {
                 let p = ffdSys.data[i];
                 let y = ffdSys.positions[i*3+1];
+
+                // Sin lluvia en etapa de formación inicial
+                if (t < 0.33 && PARAMS.type !== 'super') {
+                    ffdSys.positions[i*3+1] = -100;
+                    continue;
+                }
                 
                 if(y <= 0.1 || isNaN(y)) { 
                     p.life -= dt; 
@@ -432,7 +483,8 @@
                         if (PARAMS.type === 'single') {
                             ffdSys.positions[i*3] = (Math.random()-0.5)*5; ffdSys.positions[i*3+2] = (Math.random()-0.5)*5;
                         } else if (PARAMS.type === 'multi') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; ffdSys.positions[i*3+2] = -4 - Math.random()*6;
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; 
+                            ffdSys.positions[i*3+2] = -4 + (gfScale * 8) - Math.random()*8; // Cae detrás de la línea
                         } else {
                             ffdSys.positions[i*3] = 5 + Math.random()*15; ffdSys.positions[i*3+2] = 5 + Math.random()*15;
                         }
@@ -450,13 +502,15 @@
             }
             ffdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 3. RFD (Eco en Gancho)
-            rfdSys.points.visible = (PARAMS.type === 'super');
-            if (PARAMS.type === 'super') {
+            // 3. RFD (Eco en Gancho) - Solo Superceldas maduras
+            rfdSys.points.visible = (PARAMS.type === 'super' && t >= 0.33);
+            if (PARAMS.type === 'super' && t >= 0.33) {
                 for(let i=0; i<rfdSys.data.length; i++) {
                     let p = rfdSys.data[i];
                     let y = rfdSys.positions[i*3+1];
                     if(isNaN(y)) y = 0; 
+
+                    let envolver = (t > 0.66) ? (t-0.66)*10 : 0; // Oclusión acelera giro
 
                     if(y <= 0.1) {
                         p.life -= dt;
@@ -465,41 +519,48 @@
                             rfdSys.positions[i*3] = -5 - Math.random()*5; rfdSys.positions[i*3+2] = -5 + Math.random()*5;
                             p.life = 1; p.angle = Math.PI; 
                         } else {
-                            p.angle -= dt * 2; 
+                            p.angle -= (dt * 2) + (envolver * dt); 
                             let r = 2 + p.life * 3;
+                            if(t>0.66) r *= 0.6; // Estrechar gancho
                             rfdSys.positions[i*3] = Math.cos(p.angle) * r; rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
                         }
                     } else {
                         rfdSys.positions[i*3+1] -= (6 + Math.random()*2) * dt;
-                        p.angle -= dt * PARAMS.helicity * 0.5; 
+                        p.angle -= (dt * PARAMS.helicity * 0.5) + (envolver * dt * 0.5); 
                         let currentR = 4 + y*0.2;
+                        if(t>0.66) currentR *= 0.6;
                         rfdSys.positions[i*3] = Math.cos(p.angle) * currentR; rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
                     }
                 }
             } else {
-                for(let i=0; i<rfdSys.data.length; i++) rfdSys.positions[i*3+1] = -100; // Esconder en suelo seguro
+                for(let i=0; i<rfdSys.data.length; i++) rfdSys.positions[i*3+1] = -100; 
             }
             rfdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 4. Frentes de ráfagas
+            // 4. Frentes de Ráfagas (Gust Fronts)
             let ptsFront1 = ffdFrontLine.geometry.attributes.position.array;
             let ptsFront2 = rfdFrontLine.geometry.attributes.position.array;
             
             for(let i=0; i<=40; i++) {
-                let t = i/40;
+                let s = i/40;
                 let scalePulse = 1 + Math.sin(time * 2) * 0.05; 
                 
                 if (PARAMS.type === 'single') {
-                    let angle = t * Math.PI * 2; let radius = 6 * scalePulse;
-                    ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
+                    let angle = s * Math.PI * 2; let radius = 8 * gfScale * scalePulse;
+                    ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = gfScale === 0 ? -10 : 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
+                    ptsFront2[i*3+1] = -10; 
                 } else if (PARAMS.type === 'multi') {
-                    ptsFront1[i*3] = (t - 0.5) * 35; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = 5 * scalePulse;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
+                    let avance = gfScale * 10;
+                    ptsFront1[i*3] = (s - 0.5) * 35; ptsFront1[i*3+1] = gfScale === 0 ? -10 : 0.1; ptsFront1[i*3+2] = 5 + avance * scalePulse;
+                    ptsFront2[i*3+1] = -10; 
                 } else {
-                    ptsFront1[i*3] = 5 + (t)*15 * scalePulse; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = -5 + (t)*25 * scalePulse;
-                    let angleRFD = t * Math.PI; let rRFD = (3 + t*2) * scalePulse;
-                    ptsFront2[i*3] = -rRFD*Math.cos(angleRFD); ptsFront2[i*3+1] = 0.1; ptsFront2[i*3+2] = -rRFD*Math.sin(angleRFD);
+                    ptsFront1[i*3] = 5 + (s)*15 * scalePulse; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = -5 + (s)*25 * scalePulse;
+                    
+                    let angleRFD = s * Math.PI + (t > 0.66 ? (t-0.66)*3 : 0); // Oclusión cierra el frente
+                    let rRFD = (3 + s*2) * scalePulse * (gfScale > 1 ? 1 : gfScale);
+                    if(t < 0.33) { ptsFront2[i*3+1] = -10; } else {
+                        ptsFront2[i*3] = -rRFD*Math.cos(angleRFD); ptsFront2[i*3+1] = 0.1; ptsFront2[i*3+2] = -rRFD*Math.sin(angleRFD);
+                    }
                 }
             }
             ffdFrontLine.geometry.attributes.position.needsUpdate = true;
