@@ -441,11 +441,20 @@
             let w_speed = PARAMS.cape * 4; 
             let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0; // Solo rota la supercelda
 
+            // --- REINICIO DE PARTÍCULAS AL CAMBIAR DE TIPO ---
+            // Para evitar cuelgues, si el tipo cambia y las posiciones son inválidas, forzamos un reinicio de edad.
+            // (La lógica real de reseteo suave está en los bloques de abajo)
+
             // 2. Lógica del Updraft
             for(let i=0; i<updraftSys.data.length; i++) {
                 let p = updraftSys.data[i];
                 p.life += dt * 0.2; 
-                if(p.life > 1) { p.life = 0; p.radius = 1 + Math.random()*3; }
+                if(p.life > 1) { 
+                    p.life = 0; 
+                    p.radius = 1 + Math.random()*3; 
+                    // Resetear ángulo al inicio de vida para evitar saltos raros al cambiar de tormenta
+                    p.angle = Math.random() * Math.PI * 2; 
+                }
 
                 let y = p.life * 25; 
                 p.angle += dt * omega * (1 - p.life*0.5); 
@@ -482,13 +491,13 @@
                 let p = ffdSys.data[i];
                 let y = ffdSys.positions[i*3+1];
                 
-                if(y <= 0.1) {
+                if(y <= 0.1 || isNaN(y)) { // isNaN check previene errores si la variable se corrompe
                     p.life -= dt; 
-                    if(p.life < 0) {
+                    if(p.life < 0 || isNaN(y)) {
                         ffdSys.positions[i*3+1] = 12 + Math.random()*8;
                         if (PARAMS.type === 'single') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*8; // Cae en el centro
-                            ffdSys.positions[i*3+2] = (Math.random()-0.5)*8;
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*5; // Cae más al centro
+                            ffdSys.positions[i*3+2] = (Math.random()-0.5)*5;
                         } else if (PARAMS.type === 'multi') {
                             ffdSys.positions[i*3] = (Math.random()-0.5)*25; // Cae a lo largo de la línea
                             ffdSys.positions[i*3+2] = -4 - Math.random()*6; // Cae detrás de la línea de updrafts
@@ -507,8 +516,8 @@
                     ffdSys.positions[i*3+1] -= fallSpeed * dt;
                     let wind = calculateWindAtHeight(y, PARAMS.shear);
                     // En unicelular no hay arrastre fuerte, en multi y super sí
-                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt);
-                    ffdSys.positions[i*3+2] += (PARAMS.type === 'single' ? 0 : wind.z * dt);
+                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt * 0.5); // Reducido el arrastre para mayor estabilidad
+                    ffdSys.positions[i*3+2] += (PARAMS.type === 'single' ? 0 : wind.z * dt * 0.5);
                 }
             }
             ffdSys.points.geometry.attributes.position.needsUpdate = true;
@@ -519,7 +528,9 @@
                 for(let i=0; i<rfdSys.data.length; i++) {
                     let p = rfdSys.data[i];
                     let y = rfdSys.positions[i*3+1];
-                    // (Lógica existente de la supercelda)
+                    // Asegurar que si venimos de otro tipo de tormenta, no haya NaN
+                    if(isNaN(y)) y = 0; 
+
                     if(y <= 0.1) {
                         p.life -= dt;
                         if(p.life < 0) {
@@ -542,6 +553,12 @@
                     }
                 }
                 rfdSys.points.geometry.attributes.position.needsUpdate = true;
+            } else {
+                // Si no es supercelda, esconder las partículas del RFD mandándolas lejos para que no interfieran
+                for(let i=0; i<rfdSys.data.length; i++) {
+                     rfdSys.positions[i*3+1] = -100;
+                }
+                rfdSys.points.geometry.attributes.position.needsUpdate = true;
             }
 
             // 5. Dibujar Frentes de ráfagas según tipo
@@ -555,15 +572,19 @@
                 if (PARAMS.type === 'single') {
                     // Frente circular (microburst)
                     let angle = t * Math.PI * 2;
-                    let radius = 8 * scalePulse;
+                    let radius = 6 * scalePulse;
                     ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -1; ptsFront2[i*3+2] = 0; // Ocultar el segundo frente
+                    
+                    // Esconder el segundo frente de manera segura
+                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
                 } else if (PARAMS.type === 'multi') {
                     // Frente lineal avanzando (Squall line gust front)
                     let xPos = (t - 0.5) * 35;
-                    let zPos = 8 * scalePulse; // Avanza en Z positivo
+                    let zPos = 5 * scalePulse; // Avanza en Z positivo
                     ptsFront1[i*3] = xPos; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = zPos;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -1; ptsFront2[i*3+2] = 0; // Ocultar
+                    
+                    // Esconder
+                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
                 } else {
                     // Supercelda: FFD y RFD intersectando
                     // FFD (Parábola delantera)
