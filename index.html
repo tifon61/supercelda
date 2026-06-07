@@ -2,17 +2,18 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Matemático de Supercelda 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simulador Matemático de Tormentas 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { 
             margin: 0; 
             overflow: hidden; 
-            background-color: #0f172a; /* Slate 900 */
+            background-color: #0f172a; 
             font-family: 'Inter', sans-serif;
             color: white;
+            touch-action: none; /* Evita el scroll nativo en móviles en el canvas */
         }
         #canvas-container {
             position: absolute;
@@ -23,25 +24,43 @@
             position: absolute;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 10;
-            pointer-events: none; /* Deja pasar los clicks al canvas 3D */
+            pointer-events: none;
             display: flex;
+            flex-direction: column;
+        }
+        /* Contenedor de paneles dinámico para escritorio y móvil */
+        .panels-container {
+            display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            padding: 1.5rem;
+            padding: 1rem;
+            height: 100%;
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .panels-container {
+                flex-direction: row;
+                padding: 1.5rem;
+            }
         }
         .panel {
-            pointer-events: auto; /* Reactiva clicks en los paneles */
+            pointer-events: auto;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
-            padding: 1.5rem;
-            max-height: calc(100vh - 3rem);
+            padding: 1.25rem;
+            max-height: 40vh; /* En móviles no ocupa toda la pantalla */
             overflow-y: auto;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        @media (min-width: 768px) {
+            .panel { max-height: calc(100vh - 3rem); }
         }
         .math-font {
             font-family: 'Fira Code', monospace;
-            color: #38bdf8; /* Sky 400 */
+            color: #38bdf8;
             background: rgba(0,0,0,0.3);
             padding: 0.5rem;
             border-radius: 0.5rem;
@@ -49,124 +68,102 @@
             margin-top: 0.5rem;
             display: block;
         }
-        /* Custom Scrollbar for panels */
+        /* Scrollbar custom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        
+        #toggle-ui-btn {
+            pointer-events: auto;
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+        }
     </style>
 </head>
 <body>
 
     <div id="canvas-container"></div>
 
+    <!-- Botón para móviles y vista inmersiva -->
+    <button id="toggle-ui-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-blue-400 backdrop-blur-md bg-opacity-80 transition-all text-sm">
+        👁️ Alternar Paneles
+    </button>
+
     <div id="ui-layer">
-        <!-- Panel Izquierdo: Controles Físicos -->
-        <div class="panel w-80 flex flex-col gap-6">
-            <div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Tormentas Lab</h1>
-                <p class="text-xs text-slate-400 mt-1">Modelo Matemático Interactivo</p>
-            </div>
-
-            <!-- Selector de Tipo de Tormenta -->
-            <div>
-                <label class="text-sm font-semibold mb-2 block text-slate-200">Tipo de Tormenta</label>
-                <select id="storm-type" class="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                    <option value="single">Unicelular (Masa de aire)</option>
-                    <option value="multi">Multicelular (Línea de turbonada)</option>
-                    <option value="super" selected>Supercelda (Clásica)</option>
-                </select>
-            </div>
-
-            <!-- Controles -->
-            <div class="space-y-4">
+        <div class="panels-container mt-12 md:mt-0">
+            <!-- Panel Izquierdo: Controles -->
+            <div class="panel w-full md:w-80 flex flex-col gap-4" id="panel-left">
                 <div>
-                    <label class="text-sm font-semibold flex justify-between">
-                        <span>Cizalladura (Wind Shear)</span>
-                        <span id="val-shear" class="text-blue-400">1.0</span>
-                    </label>
-                    <input type="range" id="shear" min="0" max="3" step="0.1" value="1.0" class="w-full accent-blue-500 mt-2">
-                    <p class="text-xs text-slate-400 mt-1">Modifica el perfil del viento con la altura.</p>
+                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Tormentas Lab</h1>
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold flex justify-between">
-                        <span>Helicidad (Rotación)</span>
-                        <span id="val-helicity" class="text-purple-400">1.5</span>
+                    <label class="text-sm font-semibold mb-1 block text-slate-200">Tipo de Tormenta</label>
+                    <select id="storm-type" class="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                        <option value="single">Unicelular (Masa de aire)</option>
+                        <option value="multi">Multicelular (Línea Turbonada)</option>
+                        <option value="super" selected>Supercelda (Clásica)</option>
+                    </select>
+                </div>
+
+                <!-- MODO RADAR -->
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer font-bold text-yellow-400">
+                        <input type="checkbox" id="radar-mode" class="accent-yellow-500 w-5 h-5"> 📡 Vista Radar (dBZ)
                     </label>
-                    <input type="range" id="helicity" min="0" max="5" step="0.1" value="1.5" class="w-full accent-purple-500 mt-2">
-                    <p class="text-xs text-slate-400 mt-1">Intensidad del mesociclón (vorticidad streamwise).</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Oculta vientos y simula reflectividad top-down.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm font-semibold flex justify-between">
+                            <span>Cizalladura</span> <span id="val-shear" class="text-blue-400">1.0</span>
+                        </label>
+                        <input type="range" id="shear" min="0" max="3" step="0.1" value="1.0" class="w-full accent-blue-500 mt-1">
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold flex justify-between">
+                            <span>Helicidad</span> <span id="val-helicity" class="text-purple-400">1.5</span>
+                        </label>
+                        <input type="range" id="helicity" min="0" max="5" step="0.1" value="1.5" class="w-full accent-purple-500 mt-1">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-700 pt-3 space-y-2">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="show-wind" checked class="accent-blue-500 w-4 h-4"> Vectores de Viento
+                    </label>
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="show-fronts" checked class="accent-red-500 w-4 h-4"> Frentes de Ráfagas
+                    </label>
+                </div>
+            </div>
+
+            <!-- Panel Derecho: Matemática -->
+            <div class="panel w-full md:w-96 flex flex-col gap-3" id="panel-right">
+                <h2 class="text-md font-bold border-b border-slate-700 pb-1" id="math-title">Matemática: Supercelda</h2>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-200">1. Viento Ambiental</h3>
+                    <code class="math-font" id="math-wind">V(z) = V_0 + γ·z</code>
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold flex justify-between">
-                        <span>Fuerza de Empuje (CAPE)</span>
-                        <span id="val-cape" class="text-red-400">2.0</span>
-                    </label>
-                    <input type="range" id="cape" min="0.5" max="4" step="0.1" value="2.0" class="w-full accent-red-500 mt-2">
-                    <p class="text-xs text-slate-400 mt-1">Velocidad de la corriente ascendente (Updraft).</p>
+                    <h3 class="text-sm font-semibold text-slate-200 mt-1">2. Updraft (Ascenso)</h3>
+                    <code class="math-font" id="math-updraft">
+                        dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>
+                        dθ/dt = ω = <span id="eq-omega">0.00</span>
+                    </code>
                 </div>
-            </div>
-
-            <!-- Toggles de Visualización -->
-            <div class="border-t border-slate-700 pt-4 space-y-2">
-                <h3 class="text-sm font-semibold text-slate-300">Capas de Visualización</h3>
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="show-wind" checked class="accent-blue-500 w-4 h-4"> Vectores de Viento (3 Niveles)
-                </label>
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="show-ffdrfd" checked class="accent-emerald-500 w-4 h-4"> Hidrometeoros (FFD / RFD)
-                </label>
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" id="show-fronts" checked class="accent-red-500 w-4 h-4"> Frentes de Ráfagas
-                </label>
-            </div>
-            
-            <div class="mt-auto text-xs text-slate-500">
-                Click + Arrastrar: Rotar cámara<br>
-                Scroll: Zoom
-            </div>
-        </div>
-
-        <!-- Panel Derecho: Visor Matemático -->
-        <div class="panel w-96 flex flex-col gap-4">
-            <h2 class="text-lg font-bold border-b border-slate-700 pb-2" id="math-title">Matemática: Supercelda</h2>
-            
-            <div>
-                <h3 class="text-sm font-semibold text-slate-200" id="math-h-wind">1. Perfil de Viento Ambiental</h3>
-                <p class="text-xs text-slate-400" id="math-p-wind">Ecuación vectorial dependiente de Z (altura) y Cizalladura ($\gamma$).</p>
-                <code class="math-font" id="math-wind">
-                    V(z) = V_0 + γ·z<br>
-                    u(z) = cos(θ_z) * |V|<br>
-                    v(z) = sin(θ_z) * |V|
-                </code>
-            </div>
-
-            <div>
-                <h3 class="text-sm font-semibold text-slate-200 mt-2" id="math-h-up">2. Corriente Ascendente (Updraft)</h3>
-                <p class="text-xs text-slate-400" id="math-p-up">Trayectoria de parcela de aire con rotación (ω) y advección por viento ambiental.</p>
-                <code class="math-font" id="math-updraft">
-                    dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>
-                    dθ/dt = ω = <span id="eq-omega">0.00</span><br>
-                    x(t) = r·cos(ωt) + u(z)t<br>
-                    y(t) = r·sin(ωt) + v(z)t
-                </code>
-            </div>
-
-            <div id="math-section-fronts">
-                <h3 class="text-sm font-semibold text-slate-200 mt-2" id="math-h-fronts">3. Frentes de Ráfagas</h3>
-                <p class="text-xs text-slate-400" id="math-p-fronts">Caída de hidrometeoros y divergencia en superficie.</p>
-                <code class="math-font" id="math-fronts-eq">
-                    ∇·V = 0 (en superficie)<br>
-                    V_radial = k / r^2
-                </code>
-            </div>
-            
-            <!-- Leyenda de colores -->
-            <div class="mt-4 p-3 bg-slate-800 rounded-lg text-xs space-y-2">
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-500 rounded-full"></div> Updraft (Corriente Ascendente)</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-green-400 rounded-full"></div> FFD (Heavy Rain/Hail)</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-400 rounded-full"></div> RFD (Hook Echo Region)</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-1 bg-yellow-400"></div> Vectores de Viento</div>
+                
+                <div class="mt-2 p-2 bg-slate-800 rounded-lg text-xs space-y-1" id="legend-box">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-400 rounded-full"></div> Updraft (Ascenso)</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-green-400 rounded-full"></div> FFD (Lluvia Principal)</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-400 rounded-full"></div> RFD (Eco en Gancho)</div>
+                </div>
             </div>
         </div>
     </div>
@@ -184,18 +181,24 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // Variables Globales de Simulación (Conectadas a la UI)
+        // --- Estado Global de la Interfaz ---
         let PARAMS = {
-            type: 'super', // 'single', 'multi', 'super'
+            type: 'super',
             shear: 1.0,
             helicity: 1.5,
             cape: 2.0,
-            showWind: true,
-            showHydrometeors: true,
-            showFronts: true
+            radarMode: false
         };
 
-        // --- Configuración Básica de Three.js ---
+        // Lógica para Ocultar/Mostrar Paneles (Ideal para móviles)
+        let uiVisible = true;
+        document.getElementById('toggle-ui-btn').addEventListener('click', () => {
+            uiVisible = !uiVisible;
+            document.getElementById('panel-left').style.display = uiVisible ? 'flex' : 'none';
+            document.getElementById('panel-right').style.display = uiVisible ? 'flex' : 'none';
+        });
+
+        // --- Configuración de Three.js ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x0f172a, 0.015);
@@ -205,22 +208,21 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimización
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 + 0.1; // No dejar que mire muy por debajo del suelo
+        controls.maxPolarAngle = Math.PI / 2 + 0.1;
 
-        // --- Entorno: Suelo y Grilla ---
+        // Entorno
         const gridHelper = new THREE.GridHelper(100, 50, 0x334155, 0x1e293b);
-        gridHelper.position.y = 0;
         scene.add(gridHelper);
-
-        const planeGeo = new THREE.PlaneGeometry(100, 100);
-        const planeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a, depthWrite: false });
-        const plane = new THREE.Mesh(planeGeo, planeMat);
+        const plane = new THREE.Mesh(
+            new THREE.PlaneGeometry(100, 100), 
+            new THREE.MeshBasicMaterial({ color: 0x0f172a, depthWrite: false })
+        );
         plane.rotation.x = -Math.PI / 2;
         plane.position.y = -0.1;
         scene.add(plane);
@@ -229,65 +231,40 @@
         scene.add(windGroup);
         const windArrows = [];
 
-        // Función Matemática del Viento: Retorna el vector viento a una altura Y dada la cizalladura
         function calculateWindAtHeight(y, shear) {
             const baseSpeed = 0.5;
+            if (PARAMS.type === 'single') return new THREE.Vector3(baseSpeed, 0, 0);
+            if (PARAMS.type === 'multi') return new THREE.Vector3(baseSpeed + (y * shear * 0.8), 0, baseSpeed * 0.5);
             
-            if (PARAMS.type === 'single') {
-                // Viento débil, sin cizalladura significativa
-                return new THREE.Vector3(baseSpeed, 0, 0);
-            } 
-            else if (PARAMS.type === 'multi') {
-                // Cizalladura unidireccional (aumenta velocidad, no cambia dirección)
-                const speed = baseSpeed + (y * shear * 0.8);
-                return new THREE.Vector3(speed, 0, baseSpeed * 0.5);
-            } 
-            else {
-                // Supercelda: Cizalladura direccional y de velocidad (Hodógrafa curva)
-                const surfaceAngle = Math.PI * 1.25; 
-                const angle = surfaceAngle - (y * shear * 0.15); 
-                const speed = baseSpeed + (y * shear * 0.5);
-                return new THREE.Vector3(Math.cos(angle) * speed, 0, Math.sin(angle) * speed);
-            }
+            // Supercelda (Giro horario con la altura)
+            const surfaceAngle = Math.PI * 1.25; 
+            const angle = surfaceAngle - (y * shear * 0.15); 
+            const speed = baseSpeed + (y * shear * 0.5);
+            return new THREE.Vector3(Math.cos(angle) * speed, 0, Math.sin(angle) * speed);
         }
 
-        // Crear grilla de flechas en 3 niveles (Superficie, Medio, Alto)
         const levels = [0.5, 8, 16]; 
-        const colors = [0xef4444, 0xfacc15, 0x38bdf8]; // Rojo (Inflow), Amarillo (Mid), Azul (Upper)
-        
+        const colors = [0xef4444, 0xfacc15, 0x38bdf8];
         levels.forEach((height, index) => {
             for(let x = -15; x <= 15; x+=7.5) {
                 for(let z = -15; z <= 15; z+=7.5) {
-                    // Evitar poner flechas justo en el centro donde está la nube
                     if (Math.abs(x) < 5 && Math.abs(z) < 5) continue;
-                    
-                    const dir = new THREE.Vector3(1,0,0);
-                    const origin = new THREE.Vector3(x, height, z);
-                    const arrow = new THREE.ArrowHelper(dir, origin, 2, colors[index], 0.8, 0.4);
+                    const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x, height, z), 2, colors[index], 0.8, 0.4);
                     windGroup.add(arrow);
                     windArrows.push({ arrow, y: height });
                 }
             }
         });
 
-        // Helper para crear nubes de partículas
-        function createParticleSystem(count, color, size) {
+        function createParticleSystem(count, colorHex, size) {
             const geometry = new THREE.BufferGeometry();
             const positions = new Float32Array(count * 3);
-            const data = []; // Datos extra por partícula (edad, fase, offset)
-
+            const data = [];
             for(let i=0; i<count; i++) {
-                positions[i*3] = 0; positions[i*3+1] = 0; positions[i*3+2] = 0;
-                data.push({
-                    life: Math.random(), // 0 a 1
-                    radius: Math.random() * 2,
-                    angle: Math.random() * Math.PI * 2,
-                    speed: 0.5 + Math.random() * 0.5
-                });
+                data.push({ life: Math.random(), radius: Math.random() * 2, angle: Math.random() * Math.PI * 2 });
             }
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             
-            // Usamos un sprite circular simple generado en canvas para mejor estética
             const canvas = document.createElement('canvas');
             canvas.width = 16; canvas.height = 16;
             const context = canvas.getContext('2d');
@@ -296,133 +273,107 @@
             gradient.addColorStop(1, 'rgba(255,255,255,0)');
             context.fillStyle = gradient;
             context.fillRect(0,0,16,16);
-            const texture = new THREE.CanvasTexture(canvas);
 
             const material = new THREE.PointsMaterial({
                 size: size,
-                color: color,
+                color: colorHex,
                 transparent: true,
                 opacity: 0.6,
-                map: texture,
+                map: new THREE.CanvasTexture(canvas),
                 depthWrite: false,
                 blending: THREE.AdditiveBlending
             });
-
             const points = new THREE.Points(geometry, material);
             scene.add(points);
-            return { points, data, positions };
+            return { points, data, positions, material };
         }
 
-        // 1. Updraft (Corriente Ascendente) - Núcleo cálido
-        const updraftSys = createParticleSystem(3000, 0xfca5a5, 1.2); // Rojo/Naranja
-        
-        // 2. FFD (Forward Flank Downdraft) - Precipitación principal delantera
-        const ffdSys = createParticleSystem(4000, 0x6ee7b7, 0.8); // Verde/Cian
+        // Colores Base
+        const COLOR_UP = 0xfca5a5; // Rojo claro (Aire cálido)
+        const COLOR_FFD = 0x6ee7b7; // Verde (Lluvia)
+        const COLOR_RFD = 0xc084fc; // Púrpura (Eco en Gancho)
+        // Colores Radar
+        const RADAR_FFD = 0x22c55e; // Verde radar (dBZ Medio)
+        const RADAR_RFD = 0xef4444; // Rojo radar (dBZ Alto)
 
-        // 3. RFD (Rear Flank Downdraft) - Eco en gancho trasero
-        const rfdSys = createParticleSystem(2000, 0xc084fc, 0.8); // Púrpura
+        const updraftSys = createParticleSystem(3000, COLOR_UP, 1.2);
+        const ffdSys = createParticleSystem(4000, COLOR_FFD, 1.0);
+        const rfdSys = createParticleSystem(2000, COLOR_RFD, 1.0);
 
+        // Frentes
         const frontsGroup = new THREE.Group();
         scene.add(frontsGroup);
-
-        // Línea del FFD Gust Front (Frente de Ráfaga Delantero)
-        const ffdFrontGeo = new THREE.BufferGeometry();
-        const ffdFrontPoints = [];
-        for(let i=0; i<=40; i++) ffdFrontPoints.push(new THREE.Vector3(0,0,0)); // Inicializamos con 40 puntos
-        ffdFrontGeo.setFromPoints(ffdFrontPoints);
-        const ffdFrontMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 });
-        const ffdFrontLine = new THREE.Line(ffdFrontGeo, ffdFrontMat);
+        const ffdFrontLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array(41).fill(new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 }));
+        const rfdFrontLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array(41).fill(new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 3 }));
         frontsGroup.add(ffdFrontLine);
-
-        // Línea del RFD Gust Front (Frente de Ráfaga Trasero - forma de gancho)
-        const rfdFrontGeo = new THREE.BufferGeometry();
-        const rfdFrontPoints = [];
-        for(let i=0; i<=40; i++) rfdFrontPoints.push(new THREE.Vector3(0,0,0));
-        rfdFrontGeo.setFromPoints(rfdFrontPoints);
-        const rfdFrontMat = new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 3 });
-        const rfdFrontLine = new THREE.Line(rfdFrontGeo, rfdFrontMat);
         frontsGroup.add(rfdFrontLine);
-
 
         document.getElementById('storm-type').addEventListener('change', (e) => {
             PARAMS.type = e.target.value;
             const helicityInput = document.getElementById('helicity');
-            
-            // Ajustar controles según el tipo
             if (PARAMS.type === 'single') {
-                helicityInput.disabled = true;
-                document.getElementById('shear').value = 0.2; // Baja cizalladura
-                PARAMS.shear = 0.2;
-                document.getElementById('val-shear').innerText = "0.2";
+                helicityInput.disabled = true; PARAMS.shear = 0.2; document.getElementById('shear').value = 0.2;
             } else if (PARAMS.type === 'multi') {
-                helicityInput.disabled = true;
-                document.getElementById('shear').value = 1.5; // Alta cizalladura unidireccional
-                PARAMS.shear = 1.5;
-                document.getElementById('val-shear').innerText = "1.5";
+                helicityInput.disabled = true; PARAMS.shear = 1.5; document.getElementById('shear').value = 1.5;
             } else {
                 helicityInput.disabled = false;
             }
             updateMathPanelTexts();
         });
 
-        document.getElementById('shear').addEventListener('input', (e) => {
-            PARAMS.shear = parseFloat(e.target.value);
-            document.getElementById('val-shear').innerText = PARAMS.shear.toFixed(1);
-        });
-        document.getElementById('helicity').addEventListener('input', (e) => {
-            PARAMS.helicity = parseFloat(e.target.value);
-            document.getElementById('val-helicity').innerText = PARAMS.helicity.toFixed(1);
-        });
-        document.getElementById('cape').addEventListener('input', (e) => {
-            PARAMS.cape = parseFloat(e.target.value);
-            document.getElementById('val-cape').innerText = PARAMS.cape.toFixed(1);
-        });
-
-        // Toggles
+        document.getElementById('shear').addEventListener('input', (e) => { PARAMS.shear = parseFloat(e.target.value); document.getElementById('val-shear').innerText = PARAMS.shear.toFixed(1); });
+        document.getElementById('helicity').addEventListener('input', (e) => { PARAMS.helicity = parseFloat(e.target.value); document.getElementById('val-helicity').innerText = PARAMS.helicity.toFixed(1); });
         document.getElementById('show-wind').addEventListener('change', (e) => { windGroup.visible = e.target.checked; });
-        document.getElementById('show-ffdrfd').addEventListener('change', (e) => { 
-            ffdSys.points.visible = e.target.checked;
-            rfdSys.points.visible = e.target.checked;
-        });
         document.getElementById('show-fronts').addEventListener('change', (e) => { frontsGroup.visible = e.target.checked; });
 
-        // Update Text Panel Math
+        // --- LÓGICA MODO RADAR ---
+        document.getElementById('radar-mode').addEventListener('change', (e) => {
+            PARAMS.radarMode = e.target.checked;
+            if (PARAMS.radarMode) {
+                // Cámara Top-Down
+                camera.position.set(0, 45, 0);
+                camera.lookAt(0, 0, 0);
+                
+                // Ocultar aire y visuales de entorno
+                updraftSys.points.visible = false;
+                windGroup.visible = false;
+                gridHelper.visible = false;
+                document.getElementById('show-wind').disabled = true;
+
+                // Colores tipo Radar Doppler
+                ffdSys.material.color.setHex(RADAR_FFD);
+                rfdSys.material.color.setHex(RADAR_RFD);
+                scene.fog.density = 0; // Quitar niebla para ver claro desde arriba
+            } else {
+                // Restaurar Cámara y Entorno
+                camera.position.set(20, 15, 30);
+                camera.lookAt(0, 0, 0);
+                
+                updraftSys.points.visible = true;
+                windGroup.visible = document.getElementById('show-wind').checked;
+                gridHelper.visible = true;
+                document.getElementById('show-wind').disabled = false;
+
+                // Restaurar colores físicos
+                ffdSys.material.color.setHex(COLOR_FFD);
+                rfdSys.material.color.setHex(COLOR_RFD);
+                scene.fog.density = 0.015;
+            }
+        });
+
         function updateMathPanelTexts() {
-            const title = document.getElementById('math-title');
             const mathWind = document.getElementById('math-wind');
             const eqUp = document.getElementById('math-updraft');
-            const mathFronts = document.getElementById('math-fronts-eq');
 
             if (PARAMS.type === 'single') {
-                title.innerText = "Matemática: Celda Unicelular";
-                mathWind.innerHTML = `V(z) ≈ V_0<br>...viento ambiental constante.`;
-                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>x(t) ≈ 0, y(t) ≈ 0<br>...ascenso vertical sin rotación.`;
-                mathFronts.innerHTML = `V_radial = k / r^2<br>...divergencia simétrica (microburst).`;
+                mathWind.innerHTML = `V(z) ≈ V_0 (Cte)`;
+                eqUp.innerHTML = `dz/dt = √(2·CAPE)<br>x,y ≈ 0 (Ascenso vertical)`;
             } else if (PARAMS.type === 'multi') {
-                title.innerText = "Matemática: Sistema Multicelular";
-                mathWind.innerHTML = `V(z) = V_0 + γ·z (Unidireccional)<br>...cizalladura empuja la tormenta.`;
-                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>x(t) = Línea de convergencia<br>...ascenso inclinado por cizalladura.`;
-                mathFronts.innerHTML = `V_x = V_storm + V_outflow<br>...frente avanza linealmente (Gust Front).`;
+                mathWind.innerHTML = `V(z) = V_0 + γ·z (Unidireccional)`;
+                eqUp.innerHTML = `dz/dt = √(2·CAPE)<br>x(t) = Línea de convergencia`;
             } else {
-                title.innerText = "Matemática: Supercelda";
-                mathWind.innerHTML = `V(z) = V_0 + γ·z<br>u(z) = cos(θ_z) * |V|<br>v(z) = sin(θ_z) * |V|`;
-                eqUp.innerHTML = `dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>dθ/dt = ω = <span id="eq-omega">0.00</span><br>x(t) = r·cos(ωt) + u(z)t`;
-                mathFronts.innerHTML = `∇·V = 0 (en superficie)<br>...interacción compleja FFD/RFD.`;
-            }
-        }
-
-        function updateMathPanel() {
-            // Actualizar panel con valores de las ecuaciones de forma segura (evita cuelgues)
-            const elW = document.getElementById('eq-w');
-            if (elW) {
-                const baseW = (PARAMS.cape * 0.1).toFixed(3);
-                elW.innerText = `${baseW} m/s`;
-            }
-            
-            const elOmega = document.getElementById('eq-omega');
-            if (elOmega) {
-                const omega = (PARAMS.helicity * 0.05).toFixed(3);
-                elOmega.innerText = `${omega} rad/s`;
+                mathWind.innerHTML = `V(z) = V_0 + γ·z<br>Hodógrafa Curva`;
+                eqUp.innerHTML = `dz/dt = <span id="eq-w">0.00</span><br>dθ/dt = ω = <span id="eq-omega">0.00</span>`;
             }
         }
 
@@ -433,30 +384,22 @@
             const dt = clock.getDelta();
             const time = clock.getElapsedTime();
 
-            // 1. Actualizar Vectores de Viento
-            windArrows.forEach(obj => {
-                const vector = calculateWindAtHeight(obj.y, PARAMS.shear);
-                obj.arrow.setDirection(vector.clone().normalize());
-                obj.arrow.setLength(1 + vector.length() * 0.3, 0.4, 0.2);
-            });
+            // Actualizar Vectores de Viento
+            if(!PARAMS.radarMode) {
+                windArrows.forEach(obj => {
+                    const vector = calculateWindAtHeight(obj.y, PARAMS.shear);
+                    obj.arrow.setDirection(vector.clone().normalize());
+                    obj.arrow.setLength(1 + vector.length() * 0.3, 0.4, 0.2);
+                });
+            }
 
-            let w_speed = PARAMS.cape * 4; 
-            let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0; // Solo rota la supercelda
+            let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0;
 
-            // --- REINICIO DE PARTÍCULAS AL CAMBIAR DE TIPO ---
-            // Para evitar cuelgues, si el tipo cambia y las posiciones son inválidas, forzamos un reinicio de edad.
-            // (La lógica real de reseteo suave está en los bloques de abajo)
-
-            // 2. Lógica del Updraft
+            // 1. UPDRAFT (Corriente Ascendente)
             for(let i=0; i<updraftSys.data.length; i++) {
                 let p = updraftSys.data[i];
                 p.life += dt * 0.2; 
-                if(p.life > 1) { 
-                    p.life = 0; 
-                    p.radius = 1 + Math.random()*3; 
-                    // Resetear ángulo al inicio de vida para evitar saltos raros al cambiar de tormenta
-                    p.angle = Math.random() * Math.PI * 2; 
-                }
+                if(p.life > 1) { p.life = 0; p.radius = 1 + Math.random()*3; p.angle = Math.random() * Math.PI * 2; }
 
                 let y = p.life * 25; 
                 p.angle += dt * omega * (1 - p.life*0.5); 
@@ -465,158 +408,123 @@
                 let x = 0, z = 0;
 
                 if (PARAMS.type === 'single') {
-                    // Crece recto hacia arriba, angosto
-                    x = Math.cos(p.angle) * currentRadius * 0.5;
-                    z = Math.sin(p.angle) * currentRadius * 0.5;
+                    x = Math.cos(p.angle) * currentRadius * 0.5; z = Math.sin(p.angle) * currentRadius * 0.5;
                 } else if (PARAMS.type === 'multi') {
-                    // Forma una línea en el eje X
-                    x = (p.angle % (Math.PI*2) / (Math.PI*2) - 0.5) * 25; // Distribución lineal
-                    z = (Math.random() - 0.5) * 3; // Grosor de la línea
-                    // Inclinación por el viento (Cizalladura unidireccional)
+                    x = (p.angle % (Math.PI*2) / (Math.PI*2) - 0.5) * 25; z = (Math.random() - 0.5) * 3;
                     x += (y * y) * PARAMS.shear * 0.01;
                 } else {
-                    // Supercelda clásica
-                    x = Math.cos(p.angle) * currentRadius;
-                    z = Math.sin(p.angle) * currentRadius;
-                    x += (y * y) * PARAMS.shear * 0.015;
-                    z += (y * y) * PARAMS.shear * 0.005;
+                    x = Math.cos(p.angle) * currentRadius; z = Math.sin(p.angle) * currentRadius;
+                    x += (y * y) * PARAMS.shear * 0.015; z += (y * y) * PARAMS.shear * 0.005;
                 }
-
-                updraftSys.positions[i*3] = x;
-                updraftSys.positions[i*3+1] = y;
-                updraftSys.positions[i*3+2] = z;
+                updraftSys.positions[i*3] = x; updraftSys.positions[i*3+1] = y; updraftSys.positions[i*3+2] = z;
             }
             updraftSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 3. Lógica del FFD (Precipitación Principal)
+            // 2. FFD (Lluvia Delantera)
             for(let i=0; i<ffdSys.data.length; i++) {
                 let p = ffdSys.data[i];
                 let y = ffdSys.positions[i*3+1];
                 
-                if(y <= 0.1 || isNaN(y)) { // isNaN check previene errores si la variable se corrompe
+                if(y <= 0.1 || isNaN(y)) { 
                     p.life -= dt; 
                     if(p.life < 0 || isNaN(y)) {
                         ffdSys.positions[i*3+1] = 12 + Math.random()*8;
                         if (PARAMS.type === 'single') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*5; // Cae más al centro
-                            ffdSys.positions[i*3+2] = (Math.random()-0.5)*5;
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*5; ffdSys.positions[i*3+2] = (Math.random()-0.5)*5;
                         } else if (PARAMS.type === 'multi') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; // Cae a lo largo de la línea
-                            ffdSys.positions[i*3+2] = -4 - Math.random()*6; // Cae detrás de la línea de updrafts
+                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; ffdSys.positions[i*3+2] = -4 - Math.random()*6;
                         } else {
-                            ffdSys.positions[i*3] = 5 + Math.random()*15; // Adelante derecha
-                            ffdSys.positions[i*3+2] = 5 + Math.random()*15;
+                            ffdSys.positions[i*3] = 5 + Math.random()*15; ffdSys.positions[i*3+2] = 5 + Math.random()*15;
                         }
                         p.life = 1;
                     } else {
-                        // Divergencia en suelo
                         ffdSys.positions[i*3] += (ffdSys.positions[i*3] > 0 ? 1 : -1) * Math.random() * dt * 2;
                         ffdSys.positions[i*3+2] += (ffdSys.positions[i*3+2] > 0 ? 1 : -1) * Math.random() * dt * 2;
                     }
                 } else {
-                    let fallSpeed = 5 + Math.random()*3;
-                    ffdSys.positions[i*3+1] -= fallSpeed * dt;
+                    ffdSys.positions[i*3+1] -= (5 + Math.random()*3) * dt;
                     let wind = calculateWindAtHeight(y, PARAMS.shear);
-                    // En unicelular no hay arrastre fuerte, en multi y super sí
-                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt * 0.5); // Reducido el arrastre para mayor estabilidad
+                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt * 0.5);
                     ffdSys.positions[i*3+2] += (PARAMS.type === 'single' ? 0 : wind.z * dt * 0.5);
                 }
             }
             ffdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 4. Lógica del RFD (Solo activo en Supercelda)
-            rfdSys.points.visible = document.getElementById('show-ffdrfd').checked && PARAMS.type === 'super';
+            // 3. RFD (Eco en Gancho)
+            rfdSys.points.visible = (PARAMS.type === 'super');
             if (PARAMS.type === 'super') {
                 for(let i=0; i<rfdSys.data.length; i++) {
                     let p = rfdSys.data[i];
                     let y = rfdSys.positions[i*3+1];
-                    // Asegurar que si venimos de otro tipo de tormenta, no haya NaN
                     if(isNaN(y)) y = 0; 
 
                     if(y <= 0.1) {
                         p.life -= dt;
                         if(p.life < 0) {
                             rfdSys.positions[i*3+1] = 8 + Math.random()*5;
-                            rfdSys.positions[i*3] = -5 - Math.random()*5; 
-                            rfdSys.positions[i*3+2] = -5 + Math.random()*5;
+                            rfdSys.positions[i*3] = -5 - Math.random()*5; rfdSys.positions[i*3+2] = -5 + Math.random()*5;
                             p.life = 1; p.angle = Math.PI; 
                         } else {
                             p.angle -= dt * 2; 
                             let r = 2 + p.life * 3;
-                            rfdSys.positions[i*3] = Math.cos(p.angle) * r;
-                            rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
+                            rfdSys.positions[i*3] = Math.cos(p.angle) * r; rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
                         }
                     } else {
                         rfdSys.positions[i*3+1] -= (6 + Math.random()*2) * dt;
                         p.angle -= dt * PARAMS.helicity * 0.5; 
                         let currentR = 4 + y*0.2;
-                        rfdSys.positions[i*3] = Math.cos(p.angle) * currentR;
-                        rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
+                        rfdSys.positions[i*3] = Math.cos(p.angle) * currentR; rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
                     }
                 }
-                rfdSys.points.geometry.attributes.position.needsUpdate = true;
             } else {
-                // Si no es supercelda, esconder las partículas del RFD mandándolas lejos para que no interfieran
-                for(let i=0; i<rfdSys.data.length; i++) {
-                     rfdSys.positions[i*3+1] = -100;
-                }
-                rfdSys.points.geometry.attributes.position.needsUpdate = true;
+                for(let i=0; i<rfdSys.data.length; i++) rfdSys.positions[i*3+1] = -100; // Esconder en suelo seguro
             }
+            rfdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 5. Dibujar Frentes de ráfagas según tipo
+            // 4. Frentes de ráfagas
             let ptsFront1 = ffdFrontLine.geometry.attributes.position.array;
             let ptsFront2 = rfdFrontLine.geometry.attributes.position.array;
             
             for(let i=0; i<=40; i++) {
                 let t = i/40;
-                let scalePulse = 1 + Math.sin(time * 2) * 0.05; // Pulso de expansión
+                let scalePulse = 1 + Math.sin(time * 2) * 0.05; 
                 
                 if (PARAMS.type === 'single') {
-                    // Frente circular (microburst)
-                    let angle = t * Math.PI * 2;
-                    let radius = 6 * scalePulse;
+                    let angle = t * Math.PI * 2; let radius = 6 * scalePulse;
                     ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
-                    
-                    // Esconder el segundo frente de manera segura
                     ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
                 } else if (PARAMS.type === 'multi') {
-                    // Frente lineal avanzando (Squall line gust front)
-                    let xPos = (t - 0.5) * 35;
-                    let zPos = 5 * scalePulse; // Avanza en Z positivo
-                    ptsFront1[i*3] = xPos; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = zPos;
-                    
-                    // Esconder
+                    ptsFront1[i*3] = (t - 0.5) * 35; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = 5 * scalePulse;
                     ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
                 } else {
-                    // Supercelda: FFD y RFD intersectando
-                    // FFD (Parábola delantera)
                     ptsFront1[i*3] = 5 + (t)*15 * scalePulse; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = -5 + (t)*25 * scalePulse;
-                    // RFD (Gancho trasero envolvente)
-                    let angleRFD = t * Math.PI;
-                    let rRFD = (3 + t*2) * scalePulse;
+                    let angleRFD = t * Math.PI; let rRFD = (3 + t*2) * scalePulse;
                     ptsFront2[i*3] = -rRFD*Math.cos(angleRFD); ptsFront2[i*3+1] = 0.1; ptsFront2[i*3+2] = -rRFD*Math.sin(angleRFD);
                 }
             }
             ffdFrontLine.geometry.attributes.position.needsUpdate = true;
             rfdFrontLine.geometry.attributes.position.needsUpdate = true;
-            rfdFrontLine.visible = document.getElementById('show-fronts').checked && (PARAMS.type === 'super');
+            rfdFrontLine.visible = document.getElementById('show-fronts').checked && (PARAMS.type === 'super') && !PARAMS.radarMode;
+            ffdFrontLine.visible = document.getElementById('show-fronts').checked && !PARAMS.radarMode;
 
-            updateMathPanel();
+            // Actualización segura de textos matemáticos
+            const elW = document.getElementById('eq-w');
+            if (elW) elW.innerText = `${(PARAMS.cape * 0.1).toFixed(2)} m/s`;
+            const elOmega = document.getElementById('eq-omega');
+            if (elOmega) elOmega.innerText = `${(PARAMS.helicity * 0.05).toFixed(2)} rad/s`;
+
             controls.update();
             renderer.render(scene, camera);
         }
 
-        // Manejo del redimensionamiento de ventana
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Iniciar el bucle de animación
-        updateMathPanelTexts(); // Llamar una vez al inicio para setear textos
+        updateMathPanelTexts(); 
         animate();
-
     </script>
 </body>
 </html>
