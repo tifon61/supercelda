@@ -102,11 +102,17 @@
 
     <!-- Importación de Three.js -->
     <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+        { 
+            "imports": { 
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            } 
+        }
     </script>
 
     <script type="module">
         import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         // Variables de Control
         let t = 0.5;
@@ -159,6 +165,16 @@
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true; // Habilita el corte
         document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Controles de Cámara Interactivos
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Movimiento suave con inercia
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true; // Rotación automática que se pausa al tocar
+        controls.autoRotateSpeed = 0.8;
+        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Limita para no irse muy por debajo del suelo
+        controls.minDistance = 10; // Zoom máximo
+        controls.maxDistance = 100; // Zoom mínimo
 
         const clipPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 1000); // Plano de corte
         
@@ -428,12 +444,8 @@
 
             updatePhysics();
 
-            // Rotar cámara lentamente
-            const radius = 35;
-            const camSpeed = Date.now() * 0.0002;
-            camera.position.x = Math.cos(camSpeed) * radius;
-            camera.position.z = Math.sin(camSpeed) * radius;
-            camera.lookAt(0, 5, 0);
+            // Actualizar controles de cámara (necesario para el damping y autoRotate)
+            controls.update();
 
             // Refrescar vértices de lluvia
             rainMain.geometry.attributes.position.needsUpdate = true;
