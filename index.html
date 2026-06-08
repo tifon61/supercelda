@@ -8,9 +8,8 @@
     <style>
         body { margin: 0; overflow: hidden; background-color: #111827; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #e5e7eb; touch-action: none; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; display: flex; justify-content: space-between; padding: 1rem; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; display: flex; justify-content: space-between; padding: 1rem; flex-wrap: wrap; }
         .panel { pointer-events: auto; background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(75, 85, 99, 0.5); border-radius: 0.75rem; padding: 1.5rem; width: 340px; max-height: calc(100vh - 2rem); overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .label-3d { position: absolute; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; pointer-events: none; border-left: 3px solid; transition: opacity 0.2s; opacity: 0; }
         
         /* Estilos de scrollbar para paneles */
         ::-webkit-scrollbar { width: 6px; }
@@ -19,43 +18,59 @@
         
         input[type=range] { width: 100%; accent-color: #3b82f6; }
         .legend-color { width: 14px; height: 14px; border-radius: 3px; display: inline-block; margin-right: 8px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Ocultamiento dinámico para móviles */
+        @media (max-width: 768px) {
+            .panel { width: 100%; max-height: 40vh; margin-bottom: 1rem; }
+            #ui-layer { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
     <div id="canvas-container"></div>
-    <div id="labels-container" style="position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 5; pointer-events: none;"></div>
+    
+    <!-- Botón para ocultar UI en móviles (modo inmersivo) -->
+    <button id="btn-toggle-ui" class="absolute top-2 right-2 z-50 bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-full pointer-events-auto border border-gray-600 shadow-lg md:hidden">
+        📱
+    </button>
 
     <div id="ui-layer">
         <!-- Panel Izquierdo: Controles -->
-        <div class="panel flex flex-col gap-5">
+        <div id="left-panel" class="panel flex flex-col gap-4">
             <div>
-                <h1 class="text-xl font-bold text-white border-b border-gray-600 pb-2">Esquema Teórico 3D</h1>
-                <p class="text-xs text-gray-400 mt-1">Modelo conceptual (Lemon & Doswell, 1979)</p>
+                <h1 class="text-xl font-bold text-white border-b border-gray-600 pb-2">Laboratorio Convectivo</h1>
+                <p class="text-xs text-gray-400 mt-1">Simulador Cinemático 3D</p>
             </div>
 
             <div>
                 <label class="text-sm font-semibold text-gray-300 block mb-2">Modo Convectivo</label>
-                <select id="mode-select" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <select id="mode-select" class="w-full bg-gray-800 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500 mb-4">
                     <option value="supercell" selected>Supercelda Clásica</option>
                     <option value="multicell">Multicelular (Línea)</option>
                     <option value="unicell">Unicelular (Masa de aire)</option>
                 </select>
+
+                <label class="text-sm font-semibold text-gray-300 block mb-2">Evolución: <span id="stage-text" class="text-blue-400">Madurez</span></label>
+                
+                <div class="relative w-full mb-4">
+                    <div class="h-2 w-full bg-gray-700 rounded overflow-hidden absolute top-1/2 -translate-y-1/2 pointer-events-none">
+                        <div id="time-progress" class="h-full bg-blue-500 transition-all duration-75" style="width: 50%;"></div>
+                    </div>
+                    <input type="range" id="time-slider" min="0" max="1" step="0.005" value="0.5" class="w-full relative z-10 opacity-0 cursor-pointer h-6">
+                    <div class="flex justify-between text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-wider">
+                        <span>Inicio</span>
+                        <span>Desarrollo</span>
+                        <span>Oclusión</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="flex justify-between items-end mb-2">
-                    <label class="text-sm font-semibold text-gray-300">Ciclo de Vida</label>
-                    <span id="stage-text" class="text-xs font-bold text-blue-400 uppercase">Madurez</span>
-                </div>
-                <input type="range" id="time-slider" min="0" max="1" step="0.01" value="0.6">
-                <div class="flex justify-between text-[10px] text-gray-500 mt-1">
-                    <span>Nacimiento</span>
-                    <span>Madurez</span>
-                    <span>Disipación/Oclusión</span>
-                </div>
-            </div>
+            <!-- Botón de Modo Realista -->
+            <button id="btn-realistic" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded transition shadow-lg border border-indigo-400">
+                ☁️ Modo Realista
+            </button>
 
-            <div class="mt-auto">
+            <div class="mt-auto hidden md:block">
                 <h3 class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Leyenda Estructural</h3>
                 <ul class="text-xs space-y-2 text-gray-300">
                     <li><span class="legend-color" style="background: rgba(239, 68, 68, 0.4);"></span>Corriente Ascendente (UD)</li>
@@ -68,17 +83,15 @@
             </div>
         </div>
 
-        <!-- Panel Derecho: Teoría -->
-        <div class="panel flex flex-col gap-4 hidden md:flex">
-            <h2 class="text-lg font-bold text-white border-b border-gray-600 pb-2">Dinámica del Sistema</h2>
-            
+        <!-- Panel Derecho: Teoría Matemática -->
+        <div id="right-panel" class="panel flex flex-col gap-4 hidden md:flex">
+            <h2 class="text-lg font-bold text-white border-b border-gray-600 pb-2">Termodinámica y Entorno</h2>
             <div id="theory-content" class="text-sm text-gray-300 space-y-3">
-                <!-- El contenido se inyecta por JS -->
+                <!-- Se inyecta por JS -->
             </div>
         </div>
     </div>
 
-    <!-- Import Map para Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -92,11 +105,30 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const container = document.getElementById('canvas-container');
-        const labelsContainer = document.getElementById('labels-container');
+        // Variables Globales
+        let isRealistic = false;
+        const clock = new THREE.Clock();
         
+        // Elementos DOM
+        const container = document.getElementById('canvas-container');
+        const modeSelect = document.getElementById('mode-select');
+        const timeSlider = document.getElementById('time-slider');
+        const theoryContent = document.getElementById('theory-content');
+        const stageText = document.getElementById('stage-text');
+        const btnToggleUI = document.getElementById('btn-toggle-ui');
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
+        
+        // UI Toggle para móviles
+        btnToggleUI.addEventListener('click', () => {
+            leftPanel.classList.toggle('hidden');
+            rightPanel.classList.toggle('hidden');
+        });
+
+        // Configuración de la Escena
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111827); // Fondo oscuro analítico
+        scene.background = new THREE.Color(0x111827); // Fondo nocturno analítico
+        scene.fog = new THREE.FogExp2(0x111827, 0.01);
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(40, 30, 50);
@@ -109,21 +141,21 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Permitir ver un poco por debajo
+        controls.maxPolarAngle = Math.PI / 2 + 0.1;
 
-        // Luces para esquema 3D claro
+        // Luces
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
         dirLight.position.set(20, 50, 20);
         scene.add(dirLight);
 
-        // Terreno (Grilla esquemática)
+        // Grilla Analítica
         const gridHelper = new THREE.GridHelper(100, 20, 0x4b5563, 0x1f2937);
         gridHelper.position.y = 0;
         scene.add(gridHelper);
 
-        // Canvas para dibujar frentes de superficie dinámicamente
+        // Terreno Dinámico (Para dibujar frentes)
         const groundCanvas = document.createElement('canvas');
         groundCanvas.width = 1024; groundCanvas.height = 1024;
         const ctx = groundCanvas.getContext('2d');
@@ -131,42 +163,79 @@
         const groundMat = new THREE.MeshBasicMaterial({ map: groundTex, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false });
         const groundPlane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), groundMat);
         groundPlane.rotation.x = -Math.PI / 2;
-        groundPlane.position.y = 0.1; // Ligeramente sobre la grilla
+        groundPlane.position.y = 0.1;
         scene.add(groundPlane);
 
-        // Materiales Esquemáticos (Translucidos, tipo vidrio esmerilado para ver el interior)
+        // Materiales Volumétricos y Reales
         const matUD = new THREE.MeshPhysicalMaterial({ color: 0xef4444, transparent: true, opacity: 0.35, roughness: 0.2, transmission: 0.5, side: THREE.DoubleSide, depthWrite: false });
         const matFFD = new THREE.MeshPhysicalMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.25, roughness: 0.2, transmission: 0.5, side: THREE.DoubleSide, depthWrite: false });
         const matRFD = new THREE.MeshPhysicalMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.3, roughness: 0.2, transmission: 0.5, side: THREE.DoubleSide, depthWrite: false });
 
-        // Updraft (Cilindro deformable)
+        // Geometría Updraft
         const geoUD = new THREE.CylinderGeometry(3, 4, 20, 32, 10, false);
-        geoUD.translate(0, 10, 0); // Base en y=0
+        geoUD.translate(0, 10, 0);
         const meshUD = new THREE.Mesh(geoUD, matUD);
         scene.add(meshUD);
-        // Guardar posiciones base para deformación
         const baseUDPos = new Float32Array(geoUD.attributes.position.array);
 
-        // FFD (Cono truncado ancho)
+        const geoUD2 = new THREE.CylinderGeometry(3, 4, 20, 32, 10, false);
+        geoUD2.translate(0, 10, 0);
+        const meshUD_old = new THREE.Mesh(geoUD2, matUD);
+        const meshUD_new = new THREE.Mesh(geoUD2, matUD);
+        scene.add(meshUD_old); scene.add(meshUD_new);
+
+        // Geometría FFD
         const geoFFD = new THREE.CylinderGeometry(2, 15, 15, 32, 5, true);
         geoFFD.translate(0, 7.5, 0);
         const meshFFD = new THREE.Mesh(geoFFD, matFFD);
         scene.add(meshFFD);
 
-        // RFD (Tubo parcial que envuelve)
-        const geoRFD = new THREE.CylinderGeometry(5, 7, 12, 16, 5, true, Math.PI, Math.PI); // Medio cilindro
+        const geoFFD2 = new THREE.CylinderGeometry(2, 15, 15, 32, 5, true);
+        geoFFD2.translate(0, 7.5, 0);
+        const meshFFD_old = new THREE.Mesh(geoFFD2, matFFD);
+        scene.add(meshFFD_old);
+
+        // Geometría RFD
+        const geoRFD = new THREE.CylinderGeometry(5, 7, 12, 16, 5, true, Math.PI, Math.PI);
         geoRFD.translate(0, 6, 0);
         const meshRFD = new THREE.Mesh(geoRFD, matRFD);
         scene.add(meshRFD);
 
-        // Textura animada para las líneas de flujo
+        // Sistema de Lluvia Física
+        const rainCount = 3000;
+        const rainGeo = new THREE.BufferGeometry();
+        const rainPos = new Float32Array(rainCount * 3);
+        for(let i=0; i<rainCount*3; i+=3) {
+            rainPos[i] = (Math.random() - 0.5) * 12;
+            rainPos[i+1] = Math.random() * 20;
+            rainPos[i+2] = (Math.random() - 0.5) * 12;
+        }
+        rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+        const rainMat = new THREE.PointsMaterial({ color: 0x93c5fd, size: 0.15, transparent: true, opacity: 0.8 });
+        const rainSystem = new THREE.Points(rainGeo, rainMat);
+        scene.add(rainSystem);
+
+        // Vectores de Viento Ambiental (Grilla)
+        const vectorGroup = new THREE.Group();
+        scene.add(vectorGroup);
+        const arrows = [];
+        const gridS = 4;
+        for(let x = -gridS; x <= gridS; x += 2) {
+            for(let z = -gridS; z <= gridS; z += 2) {
+                const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x*5, 0.5, z*5), 3, 0xffff00);
+                vectorGroup.add(arrow);
+                arrows.push({ arrow, x: x*5, z: z*5 });
+            }
+        }
+
+        // Líneas de corriente (Streamlines)
         const flowCanvas = document.createElement('canvas');
         flowCanvas.width = 256; flowCanvas.height = 16;
         const fCtx = flowCanvas.getContext('2d');
         fCtx.fillStyle = '#ffffff'; fCtx.fillRect(0,0,256,16);
         fCtx.fillStyle = '#000000'; 
         for(let i=0; i<256; i+=32) {
-            fCtx.beginPath(); fCtx.moveTo(i, 0); fCtx.lineTo(i+16, 8); fCtx.lineTo(i, 16); fCtx.fill(); // Flechas
+            fCtx.beginPath(); fCtx.moveTo(i, 0); fCtx.lineTo(i+16, 8); fCtx.lineTo(i, 16); fCtx.fill(); 
         }
         const flowTex = new THREE.CanvasTexture(flowCanvas);
         flowTex.wrapS = flowTex.wrapT = THREE.RepeatWrapping;
@@ -174,17 +243,17 @@
 
         function createStreamline(colorHex) {
             const mat = new THREE.MeshBasicMaterial({ color: colorHex, map: flowTex, transparent: true, opacity: 0.8 });
-            // Se inicializa con una curva vacía, se actualizará dinámicamente
             const mesh = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(0,0,0), new THREE.Vector3(1,1,1)), 20, 0.4, 8, false), mat);
             scene.add(mesh);
             return mesh;
         }
 
-        const streamInflow = createStreamline(0xf59e0b); // Naranja
-        const streamMid = createStreamline(0x8b4513);    // Marron
-        const streamUpper = createStreamline(0x10b981);  // Verde
+        const streamInflow = createStreamline(0xf59e0b); 
+        const streamMid = createStreamline(0x8b4513);    
+        const streamUpper = createStreamline(0x10b981);  
 
         function updateStreamlineGeometry(mesh, points) {
+            if(points.length < 2) return;
             const curve = new THREE.CatmullRomCurve3(points);
             mesh.geometry.dispose();
             mesh.geometry = new THREE.TubeGeometry(curve, 64, 0.5, 8, false);
@@ -192,32 +261,24 @@
 
         const theoryData = {
             unicell: {
-                title: "Tormenta Unicelular (Ordinaria)",
-                env: "<strong>Cortante:</strong> Débil (< 10 m/s)<br><strong>BRN:</strong> Elevado (> 45)",
-                process: "Dominada por procesos térmicos puros. La ausencia de cortante hace que la descendente (precipitación) caiga en la misma vertical que la ascendente, cortando el suministro térmico y causando su autodestrucción.",
-                severity: "Baja/Moderada. Peligro de microbursts (reventones) pulsantes durante la disipación.",
-                stageNames: ["Cúmulus (Towering)", "Madurez", "Disipación"]
+                title: "Tormenta Unicelular (Masa de Aire)",
+                env: "<strong>Cortante (Shear):</strong> < 10 m/s<br><strong>BRN:</strong> > 45 (Empuje domina)",
+                process: "Forzante puramente térmico. La precipitación cae exactamente en el mismo eje que la corriente ascendente, matando el suministro de calor. Ciclo de vida corto (30 min).",
+                stageNames: ["Cúmulus (Towering)", "Madurez (Precipitación)", "Disipación"]
             },
             multicell: {
-                title: "Sistema Multicelular (Línea)",
-                env: "<strong>Cortante:</strong> Moderada (10-20 m/s)<br><strong>BRN:</strong> > 45",
-                process: "El frente de ráfagas (corriente de densidad fría en superficie) actúa como forzante mecánico continuo, levantando el aire cálido inestable por delante y generando nuevas celdas hijas organizadas.",
-                severity: "Moderada/Alta. Riesgo de vientos lineales severos (Squall lines), granizo e inundaciones.",
-                stageNames: ["Formación", "Madurez (Línea)", "Disipación"]
+                title: "Sistema Multicelular (Squall Line)",
+                env: "<strong>Cortante (Shear):</strong> 10 - 20 m/s<br><strong>BRN:</strong> > 45",
+                process: "El frente de ráfagas superficial actúa como forzante mecánico, levantando mecánicamente el aire por delante y generando un ciclo continuo de celdas 'hijas'.",
+                stageNames: ["Desarrollo Inicial", "Madurez (Línea activa)", "Disipación / Estratiforme"]
             },
             supercell: {
                 title: "Supercelda (Clásica)",
-                env: "<strong>Cortante:</strong> Fuerte (> 20 m/s, direccional)<br><strong>BRN:</strong> Óptimo (10 - 45)",
-                process: "Dominada por forzantes dinámicos. La fuerte cortante inclina y hace rotar la corriente ascendente (Mesociclón). Esto crea un gradiente de perturbación de presión (succión) que evita que el FFD la colapse, aislando la ascendente.",
-                severity: "Extrema. Único modo capaz de producir granizo destructivo (>5cm) y tornados violentos persistentes.",
-                stageNames: ["Fase Temprana (Sin RFD)", "Madurez (Aparición RFD/Gancho)", "Oclusión Tornádica"]
+                env: "<strong>Cortante (Shear):</strong> > 20 m/s (Direccional)<br><strong>BRN:</strong> 10 - 45 (Óptimo)",
+                process: "Forzante dinámico. La rotación intensa genera gradientes de presión que succionan el aire hacia arriba sin interferir con la lluvia descendente.",
+                stageNames: ["Fase Temprana (Sin Gancho)", "Madurez (Aparición RFD)", "Oclusión Tornádica"]
             }
         };
-
-        const modeSelect = document.getElementById('mode-select');
-        const timeSlider = document.getElementById('time-slider');
-        const theoryContent = document.getElementById('theory-content');
-        const stageText = document.getElementById('stage-text');
 
         function updateTheoryPanel() {
             const mode = modeSelect.value;
@@ -228,12 +289,8 @@
                     <p class="text-sm">${data.env}</p>
                 </div>
                 <div>
-                    <span class="font-bold text-gray-100 block mb-1">Procesos Principales:</span>
+                    <span class="font-bold text-gray-100 block mb-1">Proceso Físico:</span>
                     <p>${data.process}</p>
-                </div>
-                <div class="bg-red-900/30 p-3 rounded border border-red-800">
-                    <span class="font-bold text-red-400 block mb-1">Severidad:</span>
-                    <p>${data.severity}</p>
                 </div>
             `;
             updateStageText();
@@ -250,193 +307,287 @@
         modeSelect.addEventListener('change', updateTheoryPanel);
         timeSlider.addEventListener('input', updateStageText);
 
+        document.getElementById('btn-realistic').addEventListener('click', (e) => {
+            isRealistic = !isRealistic;
+            e.target.innerText = isRealistic ? "🔬 Modo Analítico" : "☁️ Modo Realista";
+            
+            if(isRealistic) {
+                matUD.color.setHex(0xe5e7eb); matUD.opacity = 0.95; matUD.roughness = 1.0; matUD.transmission = 0;
+                matFFD.color.setHex(0x9ca3af); matFFD.opacity = 0.9; matFFD.transmission = 0;
+                matRFD.color.setHex(0x4b5563); matRFD.opacity = 0.95; matRFD.transmission = 0;
+                scene.background = new THREE.Color(0x3b82f6); // Cielo diurno
+                scene.fog.color.setHex(0x3b82f6);
+                gridHelper.visible = false;
+                ambientLight.intensity = 1.2;
+            } else {
+                matUD.color.setHex(0xef4444); matUD.opacity = 0.35; matUD.roughness = 0.2; matUD.transmission = 0.5;
+                matFFD.color.setHex(0x3b82f6); matFFD.opacity = 0.25; matFFD.transmission = 0.5;
+                matRFD.color.setHex(0x8b5cf6); matRFD.opacity = 0.3; matRFD.transmission = 0.5;
+                scene.background = new THREE.Color(0x111827); // Noche analítica
+                scene.fog.color.setHex(0x111827);
+                gridHelper.visible = true;
+                ambientLight.intensity = 0.6;
+            }
+        });
+
         function drawSurfaceFeatures(mode, t) {
             ctx.clearRect(0, 0, 1024, 1024);
-            const cx = 512; const cy = 512; const scale = 10; // Pixeles por unidad 3D
-            
+            const cx = 512; const cy = 512; const scale = 10; 
             ctx.lineWidth = 3;
 
             if (mode === 'unicell' && t > 0.4) {
-                // Microburst circular expandiéndose
-                const r = (t - 0.4) * 30 * scale;
+                // Pileta fría expandiéndose
+                const r = (t - 0.4) * 40 * scale;
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+                
                 ctx.strokeStyle = '#3b82f6';
                 ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+                
                 // Triangulitos hacia afuera
                 for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
                     ctx.fillStyle = '#3b82f6';
                     ctx.beginPath();
                     let px = cx + Math.cos(a)*r; let py = cy + Math.sin(a)*r;
                     ctx.moveTo(px, py);
-                    ctx.lineTo(px + Math.cos(a)*15, py + Math.sin(a)*15);
-                    ctx.lineTo(px + Math.cos(a+0.2)*10, py + Math.sin(a+0.2)*10);
+                    ctx.lineTo(px + Math.cos(a-0.25)*15, py + Math.sin(a-0.25)*15);
+                    ctx.lineTo(px + Math.cos(a+0.25)*15, py + Math.sin(a+0.25)*15);
                     ctx.fill();
                 }
-            } 
-            else if (mode === 'multicell' && t > 0.2) {
-                // Frente de ráfagas recto avanzando
-                const x = cx + ((t * 40) - 20) * scale;
-                ctx.strokeStyle = '#3b82f6';
-                ctx.beginPath(); ctx.moveTo(x, cy - 200); ctx.lineTo(x, cy + 200); ctx.stroke();
-                for(let y=cy-180; y<=cy+180; y+=40) {
-                    ctx.fillStyle = '#3b82f6';
-                    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+15, y); ctx.lineTo(x, y+10); ctx.fill();
-                }
-            }
-            else if (mode === 'supercell' && t > 0.3) {
-                // Frentes FFD y RFD (Lemon & Doswell)
-                ctx.strokeStyle = '#3b82f6'; // Frente de ráfaga delantero
-                ctx.beginPath();
-                ctx.arc(cx + 100, cy, 150, Math.PI*0.8, Math.PI*1.8);
-                ctx.stroke();
+            } else if (mode === 'multicell' && t > 0.1) {
+                // Frente de ráfagas recto empujando
+                let advanceX = cx + ((t * 40) - 20) * scale;
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+                ctx.fillRect(0, 0, advanceX, 1024); 
 
-                if (t > 0.6) {
-                    // Frente de ráfaga trasero (RFD ocluyendo)
-                    const ocl = (t - 0.6) * 2; // Factor de oclusión
+                ctx.strokeStyle = '#3b82f6';
+                ctx.beginPath(); ctx.moveTo(advanceX, 0); ctx.lineTo(advanceX, 1024); ctx.stroke();
+                
+                for(let y=100; y<1024; y+=100) {
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.beginPath();
+                    ctx.moveTo(advanceX, y);
+                    ctx.lineTo(advanceX+15, y-10);
+                    ctx.lineTo(advanceX+15, y+10);
+                    ctx.fill();
+                }
+            } else if (mode === 'supercell' && t > 0.2) {
+                // FFD Gust Front (Curva cálida/fría combinada)
+                ctx.strokeStyle = '#3b82f6';
+                ctx.beginPath();
+                ctx.moveTo(cx + 10*scale, cy - 20*scale);
+                ctx.quadraticCurveTo(cx + 35*scale, cy - 10*scale, cx + 50*scale, cy + 40*scale);
+                ctx.stroke();
+                
+                // RFD Gust Front (Gancho)
+                if (t > 0.4) {
+                    let rfdDrop = Math.min(1, (t - 0.4) * 2);
                     ctx.strokeStyle = '#8b5cf6';
                     ctx.beginPath();
-                    ctx.arc(cx, cy, 80 - (ocl*40), Math.PI*0.5, Math.PI*1.5 + ocl);
+                    ctx.moveTo(cx + 10*scale, cy - 20*scale);
+                    ctx.quadraticCurveTo(cx - 25*scale, cy - 10*scale, cx - 15*scale, cy + (30 * rfdDrop)*scale);
                     ctx.stroke();
                 }
             }
             groundTex.needsUpdate = true;
         }
 
-        const clock = new THREE.Clock();
+        function updateWindVectors(shear) {
+            arrows.forEach(a => {
+                let angle = Math.atan2(a.z, a.x) + (shear * 0.5);
+                a.arrow.setDirection(new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).normalize());
+                let length = 2 + (shear * 2);
+                a.arrow.setLength(length);
+                a.arrow.setColor(shear > 1 ? 0xff4444 : 0xffff00);
+            });
+            vectorGroup.visible = !isRealistic; 
+        }
+
+        function deformUpdraft(mesh, baseArray, tiltX, tiltZ) {
+            if(!mesh.visible) return;
+            const posAttr = mesh.geometry.attributes.position;
+            for (let i = 0; i < posAttr.count; i++) {
+                let py = baseArray[i*3 + 1];
+                let px = baseArray[i*3];
+                let pz = baseArray[i*3 + 2];
+                let offset = (py / 20); 
+                posAttr.setX(i, px + (offset * 15 * tiltX));
+                posAttr.setZ(i, pz + (offset * 15 * tiltZ));
+            }
+            posAttr.needsUpdate = true;
+            mesh.geometry.computeVertexNormals();
+        }
 
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
-            const time = clock.getElapsedTime();
             
+            // Auto-Avanzar Tiempo
+            let t = parseFloat(timeSlider.value);
+            t += delta * 0.05; 
+            if(t > 1) t = 0;
+            timeSlider.value = t;
+            
+            let timeProg = document.getElementById('time-progress');
+            if(timeProg) timeProg.style.width = (t * 100) + '%';
+            
+            updateStageText();
             const mode = modeSelect.value;
-            const t = parseFloat(timeSlider.value); // Ciclo de vida (0 a 1)
-
-            // Animar textura de flujo
             flowTex.offset.x -= delta * 0.5;
 
-            // Variables de transformación estructural
-            let udTiltX = 0, udTiltZ = 0, udRadiusTop = 4;
-            let ffdVisible = false, ffdPos = {x:0, z:0}, ffdScale = 0;
-            let rfdVisible = false, rfdPos = {x:0, z:0}, rfdScale = 0;
+            // Reset de visibilidad para transición segura
+            let udTiltX = 0, udTiltZ = 0;
+            let ffdVisible = false, rfdVisible = false;
+            meshUD_old.visible = false;
+            meshUD_new.visible = false;
+            meshFFD_old.visible = false;
+            rainSystem.visible = false;
+            let showStreams = !isRealistic;
 
-            // Actualizar dibujo de superficie
             drawSurfaceFeatures(mode, t);
 
-            // 1. LÓGICA DE GEOMETRÍA POR MODO Y ETAPA
             if (mode === 'unicell') {
-                // Sin cizalladura: UD recto. 
-                udTiltX = 0; udTiltZ = 0;
-                let udLife = t < 0.8 ? Math.sin(t * Math.PI / 0.8) : 0; // Crece y muere
-                meshUD.scale.set(1, udLife, 1);
+                // FÍSICA UNICELULAR: Crecimiento y colapso vertical
+                let udLife = t < 0.8 ? Math.sin(t * Math.PI / 0.8) : 0;
+                meshUD.scale.set(1, Math.max(0.01, udLife), 1);
+                meshUD.position.set(0,0,0);
                 
-                // Lluvia cae en el mismo lugar a partir de Madurez (t>0.4)
                 if (t > 0.4 && t < 0.9) {
                     ffdVisible = true;
-                    ffdPos = {x: 0, z: 0};
-                    ffdScale = Math.sin((t-0.4) * Math.PI / 0.5);
-                    meshFFD.scale.set(0.4, ffdScale, 0.4); // Cilindro estrecho interno
+                    meshFFD.position.set(0,0,0);
+                    let ffdScale = Math.sin((t-0.4) * Math.PI / 0.5);
+                    meshFFD.scale.set(0.6, ffdScale, 0.6); 
+                    
+                    rainSystem.visible = true;
+                    rainSystem.position.set(0, 0, 0);
+                    rainSystem.scale.set(0.6, ffdScale, 0.6);
                 }
                 
-                // Ocultar flujos complejos
-                streamMid.visible = streamUpper.visible = false;
-                if(udLife > 0.1) {
+                if(udLife > 0.1 && showStreams && t < 0.6) {
                     streamInflow.visible = true;
                     updateStreamlineGeometry(streamInflow, [
                         new THREE.Vector3(15, 0.5, 0), new THREE.Vector3(5, 1, 0), new THREE.Vector3(0, 5, 0), new THREE.Vector3(0, 15*udLife, 0)
                     ]);
                 } else streamInflow.visible = false;
-            } 
-            else if (mode === 'multicell') {
-                // Cizalladura unidireccional (Tilt en X)
-                udTiltX = 0.5; udTiltZ = 0;
                 
-                let advanceX = (t * 40) - 20; // Se mueve hacia adelante
-                meshUD.position.x = advanceX;
-                meshUD.scale.set(1, 1, 3); // Extendido como línea en Z
+                streamMid.visible = streamUpper.visible = false;
+                updateWindVectors(0);
+                meshRFD.position.y = -100; // Esconder seguro bajo tierra
 
+            } else if (mode === 'multicell') {
+                // FÍSICA MULTICELULAR: Propagación hacia adelante
+                udTiltX = 0.3; udTiltZ = 0;
+                meshUD_old.visible = true;
+                meshUD_new.visible = true;
+                
+                let advanceX = (t * 40) - 20; 
+                
+                meshUD_new.position.set(advanceX + 12, 0, 0);
+                meshUD_new.scale.set(1, Math.min(1, t * 2.5), 2); 
+                
+                meshUD.position.set(advanceX, 0, 0);
+                meshUD.scale.set(1, 1, 2); 
+                
                 if (t > 0.2) {
                     ffdVisible = true;
-                    meshFFD.position.set(advanceX - 8, 0, 0); // FFD queda rezagado
+                    meshFFD.position.set(advanceX - 6, 0, 0);
                     meshFFD.scale.set(0.6, 1, 3.5);
+                    rainSystem.visible = true;
+                    rainSystem.position.set(advanceX - 6, 0, 0);
+                    rainSystem.scale.set(0.6, 1, 3.5);
                 }
 
+                if (t > 0.3) {
+                    meshUD_old.position.set(advanceX - 15, 0, 0);
+                    let oldScale = Math.max(0.01, 1 - ((t - 0.3) * 1.5));
+                    meshUD_old.scale.set(1, oldScale, 2);
+                    
+                    meshFFD_old.visible = true;
+                    meshFFD_old.position.set(advanceX - 15, 0, 0);
+                    meshFFD_old.scale.set(0.7, Math.max(0.01, 1 - (t*0.5)), 3.5); 
+                }
+
+                if(showStreams) {
+                    streamInflow.visible = true;
+                    updateStreamlineGeometry(streamInflow, [
+                        new THREE.Vector3(advanceX + 25, 0.5, 0), new THREE.Vector3(advanceX + 8, 2, 0), new THREE.Vector3(advanceX - 2, 15, 0)
+                    ]);
+                } else streamInflow.visible = false;
+                
                 streamMid.visible = streamUpper.visible = false;
-                streamInflow.visible = true;
-                updateStreamlineGeometry(streamInflow, [
-                    new THREE.Vector3(advanceX + 20, 0.5, 0), new THREE.Vector3(advanceX + 5, 2, 0), new THREE.Vector3(advanceX - 5, 15, 0)
-                ]);
-            }
-            else if (mode === 'supercell') {
-                // Cizalladura Direccional (Tilt X y Z), Rotación y Oclusión
+                updateWindVectors(0.5);
+                meshRFD.position.y = -100;
+
+            } else if (mode === 'supercell') {
+                // FÍSICA SUPERCELDA: Rotación, Cizalladura y Oclusión
                 udTiltX = 0.6; udTiltZ = 0.4;
                 
-                // En oclusión (t>0.7), el UD se contrae como un tornado
                 let constriction = t > 0.7 ? 1 - ((t-0.7)*2) : 1;
                 meshUD.position.set(0,0,0);
-                meshUD.scale.set(constriction, 1, constriction);
+                meshUD.scale.set(Math.max(0.2, constriction), 1, Math.max(0.2, constriction));
 
-                // FFD (Descendente Delantera)
                 if (t > 0.2) {
                     ffdVisible = true;
                     meshFFD.position.set(12, 0, -8);
-                    meshFFD.scale.set(1, t, 1); // Crece con el tiempo
+                    meshFFD.scale.set(1, Math.min(1, t*1.5), 1); 
+                    rainSystem.visible = true;
+                    rainSystem.position.set(12, 0, -8);
+                    rainSystem.scale.set(1, 1, 1);
                 }
 
-                // RFD (Descendente Trasera - Gancho)
                 if (t > 0.4) {
                     rfdVisible = true;
                     meshRFD.position.set(-6, 0, 4);
-                    // Baja gradualmente (Lemon & Doswell etapa a vs b)
                     let drop = t < 0.6 ? (0.6 - t)*15 : 0; 
                     meshRFD.position.y = drop;
                     meshRFD.scale.set(1, 1, 1);
-                    // Oclusión envuelve
                     if(t > 0.7) meshRFD.rotation.y = (t-0.7) * 4; 
                     else meshRFD.rotation.y = 0;
+                } else {
+                    meshRFD.position.y = -100;
                 }
 
-                // Flujos Clásicos Lemon & Doswell
-                streamInflow.visible = streamMid.visible = streamUpper.visible = true;
-                
-                // Inflow: Sube en espiral
-                let inPts = [];
-                for(let i=0; i<=1; i+=0.1) {
-                    inPts.push(new THREE.Vector3(
-                        15*(1-i) + Math.cos(i*Math.PI)*2, 
-                        (i*18), 
-                        15*(1-i) + Math.sin(i*Math.PI)*2
-                    ));
+                if(showStreams) {
+                    streamInflow.visible = streamMid.visible = streamUpper.visible = true;
+                    
+                    let inPts = [];
+                    for(let i=0; i<=1; i+=0.1) {
+                        inPts.push(new THREE.Vector3(
+                            15*(1-i) + Math.cos(i*Math.PI)*2, 
+                            (i*18), 
+                            15*(1-i) + Math.sin(i*Math.PI)*2
+                        ));
+                    }
+                    updateStreamlineGeometry(streamInflow, inPts);
+
+                    let rfdDropY = t > 0.6 ? 1 : 8; 
+                    updateStreamlineGeometry(streamMid, [
+                        new THREE.Vector3(-25, 8, -15), new THREE.Vector3(-10, 8, -5), new THREE.Vector3(-5, rfdDropY, 5), new THREE.Vector3(5, 1, 15)
+                    ]);
+
+                    updateStreamlineGeometry(streamUpper, [
+                        new THREE.Vector3(-25, 18, -5), new THREE.Vector3(-5, 18, 0), new THREE.Vector3(5, 18, 5), new THREE.Vector3(25, 19, 10)
+                    ]);
+                } else {
+                    streamInflow.visible = streamMid.visible = streamUpper.visible = false;
                 }
-                updateStreamlineGeometry(streamInflow, inPts);
-
-                // Mid (4km): Entra por atrás, desciende como RFD
-                let rfdDropY = t > 0.6 ? 1 : 8; // Si está madura, el flujo baja al suelo
-                updateStreamlineGeometry(streamMid, [
-                    new THREE.Vector3(-25, 8, -15), new THREE.Vector3(-10, 8, -5), new THREE.Vector3(-5, rfdDropY, 5), new THREE.Vector3(5, 1, 15)
-                ]);
-
-                // Upper (9km): Empuja el yunque
-                updateStreamlineGeometry(streamUpper, [
-                    new THREE.Vector3(-25, 18, -5), new THREE.Vector3(-5, 18, 0), new THREE.Vector3(5, 18, 5), new THREE.Vector3(25, 19, 10)
-                ]);
+                updateWindVectors(1.5);
             }
 
-            // 2. APLICAR DEFORMACIÓN DE CIZALLADURA AL UPDRAFT
-            const posAttr = meshUD.geometry.attributes.position;
-            for (let i = 0; i < posAttr.count; i++) {
-                let py = baseUDPos[i*3 + 1];
-                let px = baseUDPos[i*3];
-                let pz = baseUDPos[i*3 + 2];
-
-                // Aplicar inclinación progresiva con la altura
-                let offset = (py / 20); 
-                posAttr.setX(i, px + (offset * 15 * udTiltX));
-                posAttr.setZ(i, pz + (offset * 15 * udTiltZ));
+            // Animar Hidrometeoros (Gotitas cayendo físicamente)
+            if(rainSystem.visible) {
+                const rPos = rainSystem.geometry.attributes.position.array;
+                for(let i=0; i<rainCount*3; i+=3) {
+                    rPos[i+1] -= 0.3; // Gravedad
+                    if(rPos[i+1] < 0 || isNaN(rPos[i+1])) rPos[i+1] = 20; 
+                }
+                rainSystem.geometry.attributes.position.needsUpdate = true;
             }
-            posAttr.needsUpdate = true;
-            meshUD.geometry.computeVertexNormals();
 
-            // Visibilidades
+            deformUpdraft(meshUD, baseUDPos, udTiltX, udTiltZ);
+            deformUpdraft(meshUD_old, baseUDPos, udTiltX, udTiltZ);
+            deformUpdraft(meshUD_new, baseUDPos, udTiltX, udTiltZ);
+
             meshFFD.visible = ffdVisible;
             meshRFD.visible = rfdVisible;
 
@@ -444,14 +595,14 @@
             renderer.render(scene, camera);
         }
 
-        // Ajuste de ventana
+        // Responsividad
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Inicializar UI
+        // Inicio
         updateTheoryPanel();
         animate();
     </script>
