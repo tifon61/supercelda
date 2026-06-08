@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simulador Matemático de Tormentas 3D</title>
+    <title>Laboratorio Convectivo 3D Avanzado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -13,156 +13,125 @@
             background-color: #0f172a; 
             font-family: 'Inter', sans-serif;
             color: white;
-            touch-action: none; /* Evita el scroll nativo en móviles en el canvas */
+            touch-action: none;
         }
         #canvas-container {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
         }
         #ui-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 10;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10;
+            pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
         }
-        /* Contenedor de paneles dinámico para escritorio y móvil */
         .panels-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 1rem;
-            height: 100%;
-            gap: 1rem;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; height: 100%; gap: 1rem;
         }
         @media (min-width: 768px) {
-            .panels-container {
-                flex-direction: row;
-                padding: 1.5rem;
-            }
+            .panels-container { flex-direction: row; padding: 1.5rem; }
         }
         .panel {
-            pointer-events: auto;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            max-height: 40vh; /* En móviles no ocupa toda la pantalla */
-            overflow-y: auto;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            pointer-events: auto; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 1.25rem;
+            max-height: 45vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
         @media (min-width: 768px) {
-            .panel { max-height: calc(100vh - 3rem); }
+            .panel { max-height: calc(100vh - 3rem); width: 350px; }
         }
-        .math-font {
-            font-family: 'Fira Code', monospace;
-            color: #38bdf8;
-            background: rgba(0,0,0,0.3);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            display: block;
+        .data-box {
+            background: rgba(0,0,0,0.3); border-left: 3px solid #38bdf8; padding: 0.5rem; border-radius: 0 0.5rem 0.5rem 0; margin-top: 0.5rem; font-size: 0.8rem;
         }
-        /* Scrollbar custom */
-        ::-webkit-scrollbar { width: 6px; }
+        .stage-badge {
+            display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        
         #toggle-ui-btn {
-            pointer-events: auto;
-            position: fixed;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
+            pointer-events: auto; position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 50;
         }
+        .radar-active { filter: sepia(1) hue-rotate(100deg) saturate(3); }
     </style>
 </head>
 <body>
 
     <div id="canvas-container"></div>
 
-    <!-- Botón para móviles y vista inmersiva -->
-    <button id="toggle-ui-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-blue-400 backdrop-blur-md bg-opacity-80 transition-all text-sm">
+    <button id="toggle-ui-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-indigo-400 backdrop-blur-md bg-opacity-80 transition-all text-sm">
         👁️ Alternar Paneles
     </button>
 
     <div id="ui-layer">
-        <div class="panels-container mt-12 md:mt-0">
-            <!-- Panel Izquierdo: Controles -->
-            <div class="panel w-full md:w-80 flex flex-col gap-4" id="panel-left">
+        <div class="panels-container mt-14 md:mt-0" id="main-panels">
+            <!-- PANEL IZQUIERDO: CONTROLES Y CICLO DE VIDA -->
+            <div class="panel flex flex-col gap-4">
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Tormentas Lab</h1>
+                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400">Modos Convectivos</h1>
+                    <p class="text-xs text-slate-400">Simulador de Dinámica de Fluidos</p>
                 </div>
 
                 <div>
                     <label class="text-sm font-semibold mb-1 block text-slate-200">Tipo de Tormenta</label>
-                    <select id="storm-type" class="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        <option value="single">Unicelular (Masa de aire)</option>
-                        <option value="multi">Multicelular (Línea Turbonada)</option>
+                    <select id="storm-type" class="w-full bg-slate-800 border border-slate-600 rounded-md p-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                        <option value="single">Unicelular (Masa de Aire)</option>
+                        <option value="multi">Multicelular (Línea / Cluster)</option>
                         <option value="super" selected>Supercelda (Clásica)</option>
                     </select>
                 </div>
 
+                <!-- CONTROLES DE TIEMPO -->
+                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
+                    <label class="text-sm font-bold flex justify-between text-cyan-400 mb-2">
+                        Ciclo de Vida
+                        <span id="time-percent">0%</span>
+                    </label>
+                    <input type="range" id="lifecycle-slider" min="0" max="1" step="0.01" value="0.5" class="w-full accent-cyan-500">
+                    <div class="mt-2 text-center">
+                        <span id="stage-label" class="stage-badge bg-cyan-900 text-cyan-300 border border-cyan-500">Madurez</span>
+                    </div>
+                </div>
+
                 <!-- MODO RADAR -->
-                <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-600 hover:bg-slate-700 transition">
                     <label class="flex items-center gap-2 text-sm cursor-pointer font-bold text-yellow-400">
-                        <input type="checkbox" id="radar-mode" class="accent-yellow-500 w-5 h-5"> 📡 Vista Radar (dBZ)
-                    </label>
-                    <p class="text-[10px] text-slate-400 mt-1">Oculta vientos y simula reflectividad top-down.</p>
-                </div>
-
-                <div class="space-y-3">
-                    <div>
-                        <label class="text-sm font-semibold flex justify-between">
-                            <span>Cizalladura</span> <span id="val-shear" class="text-blue-400">1.0</span>
-                        </label>
-                        <input type="range" id="shear" min="0" max="3" step="0.1" value="1.0" class="w-full accent-blue-500 mt-1">
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold flex justify-between">
-                            <span>Helicidad</span> <span id="val-helicity" class="text-purple-400">1.5</span>
-                        </label>
-                        <input type="range" id="helicity" min="0" max="5" step="0.1" value="1.5" class="w-full accent-purple-500 mt-1">
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-700 pt-3 space-y-2">
-                    <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" id="show-wind" checked class="accent-blue-500 w-4 h-4"> Vectores de Viento
-                    </label>
-                    <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" id="show-fronts" checked class="accent-red-500 w-4 h-4"> Frentes de Ráfagas
+                        <input type="checkbox" id="radar-mode" class="accent-yellow-500 w-5 h-5"> 📡 Vista Radar Top-Down
                     </label>
                 </div>
             </div>
 
-            <!-- Panel Derecho: Matemática -->
-            <div class="panel w-full md:w-96 flex flex-col gap-3" id="panel-right">
-                <h2 class="text-md font-bold border-b border-slate-700 pb-1" id="math-title">Matemática: Supercelda</h2>
+            <!-- PANEL DERECHO: METEOROLOGÍA TÉCNICA -->
+            <div class="panel flex flex-col gap-3">
+                <h2 class="text-md font-bold border-b border-slate-700 pb-1" id="data-title">Análisis de Entorno</h2>
                 
-                <div>
-                    <h3 class="text-sm font-semibold text-slate-200">1. Viento Ambiental</h3>
-                    <code class="math-font" id="math-wind">V(z) = V_0 + γ·z</code>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-800 p-2 rounded">
+                        <span class="block text-slate-400">Cortante (0-6km)</span>
+                        <strong id="data-shear" class="text-blue-300 text-sm">> 20 m/s</strong>
+                    </div>
+                    <div class="bg-slate-800 p-2 rounded">
+                        <span class="block text-slate-400">Bulk Richardson (BRN)</span>
+                        <strong id="data-brn" class="text-orange-300 text-sm">10 - 45 (Teens)</strong>
+                    </div>
                 </div>
 
-                <div>
-                    <h3 class="text-sm font-semibold text-slate-200 mt-1">2. Updraft (Ascenso)</h3>
-                    <code class="math-font" id="math-updraft">
-                        dz/dt = √(2·CAPE) = <span id="eq-w">0.00</span><br>
-                        dθ/dt = ω = <span id="eq-omega">0.00</span>
-                    </code>
+                <div class="data-box">
+                    <span class="text-xs font-bold text-slate-300">Proceso Dominante:</span>
+                    <p id="data-process" class="text-slate-100 mt-1">Dinámico. Gradientes de presión actúan como succión, separando corrientes.</p>
                 </div>
-                
-                <div class="mt-2 p-2 bg-slate-800 rounded-lg text-xs space-y-1" id="legend-box">
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-400 rounded-full"></div> Updraft (Ascenso)</div>
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-green-400 rounded-full"></div> FFD (Lluvia Principal)</div>
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-400 rounded-full"></div> RFD (Eco en Gancho)</div>
+
+                <div class="data-box border-l-red-500">
+                    <span class="text-xs font-bold text-red-300">Severidad:</span>
+                    <p id="data-severity" class="text-slate-100 mt-1">Extrema (Granizo >5cm, Tornados).</p>
+                </div>
+
+                <div class="data-box border-l-green-500">
+                    <span class="text-xs font-bold text-green-300">Etapa Actual:</span>
+                    <p id="data-stage-desc" class="text-slate-100 mt-1">Madurez cuasi-estacionaria. Coexistencia de FFD, RFD y Mesociclón.</p>
+                </div>
+
+                <div class="mt-auto pt-2 flex flex-wrap gap-2 text-[10px]">
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 bg-red-400 rounded-full"></div> Aire Cálido (UD)</div>
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 bg-green-400 rounded-full"></div> Lluvia/Frío (FFD)</div>
+                    <div class="flex items-center gap-1"><div class="w-2 h-2 bg-purple-400 rounded-full"></div> RFD / Gancho</div>
                 </div>
             </div>
         </div>
@@ -181,30 +150,25 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- Estado Global de la Interfaz ---
         let PARAMS = {
             type: 'super',
-            shear: 1.0,
-            helicity: 1.5,
-            cape: 2.0,
+            time: 0.5, // 0.0 to 1.0 (Life cycle)
             radarMode: false
         };
 
-        // Lógica para Ocultar/Mostrar Paneles (Ideal para móviles)
+        // UI Toggle
         let uiVisible = true;
         document.getElementById('toggle-ui-btn').addEventListener('click', () => {
             uiVisible = !uiVisible;
-            document.getElementById('panel-left').style.display = uiVisible ? 'flex' : 'none';
-            document.getElementById('panel-right').style.display = uiVisible ? 'flex' : 'none';
+            document.getElementById('main-panels').style.display = uiVisible ? 'flex' : 'none';
         });
 
-        // --- Configuración de Three.js ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x0f172a, 0.015);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(20, 15, 30);
+        camera.position.set(30, 20, 40);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -212,44 +176,23 @@
         container.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 + 0.1;
+        controls.enableDamping = true; controls.dampingFactor = 0.05; controls.maxPolarAngle = Math.PI / 2 + 0.1;
 
-        // Entorno
-        const gridHelper = new THREE.GridHelper(100, 50, 0x334155, 0x1e293b);
+        // Entorno Básico
+        const gridHelper = new THREE.GridHelper(120, 60, 0x334155, 0x1e293b);
         scene.add(gridHelper);
-        const plane = new THREE.Mesh(
-            new THREE.PlaneGeometry(100, 100), 
-            new THREE.MeshBasicMaterial({ color: 0x0f172a, depthWrite: false })
-        );
-        plane.rotation.x = -Math.PI / 2;
-        plane.position.y = -0.1;
-        scene.add(plane);
 
+        // Vectores de Viento (Hodógrafa)
         const windGroup = new THREE.Group();
         scene.add(windGroup);
         const windArrows = [];
-
-        function calculateWindAtHeight(y, shear) {
-            const baseSpeed = 0.5;
-            if (PARAMS.type === 'single') return new THREE.Vector3(baseSpeed, 0, 0);
-            if (PARAMS.type === 'multi') return new THREE.Vector3(baseSpeed + (y * shear * 0.8), 0, baseSpeed * 0.5);
-            
-            // Supercelda (Giro horario con la altura)
-            const surfaceAngle = Math.PI * 1.25; 
-            const angle = surfaceAngle - (y * shear * 0.15); 
-            const speed = baseSpeed + (y * shear * 0.5);
-            return new THREE.Vector3(Math.cos(angle) * speed, 0, Math.sin(angle) * speed);
-        }
-
         const levels = [0.5, 8, 16]; 
-        const colors = [0xef4444, 0xfacc15, 0x38bdf8];
+        const colors = [0xef4444, 0xfacc15, 0x38bdf8]; // SFC, Mid, Upper
+        
         levels.forEach((height, index) => {
-            for(let x = -15; x <= 15; x+=7.5) {
-                for(let z = -15; z <= 15; z+=7.5) {
-                    if (Math.abs(x) < 5 && Math.abs(z) < 5) continue;
-                    const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x, height, z), 2, colors[index], 0.8, 0.4);
+            for(let x = -30; x <= 30; x+=15) {
+                for(let z = -30; z <= 30; z+=15) {
+                    const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x, height, z), 3, colors[index], 1, 0.5);
                     windGroup.add(arrow);
                     windArrows.push({ arrow, y: height });
                 }
@@ -261,257 +204,299 @@
             const positions = new Float32Array(count * 3);
             const data = [];
             for(let i=0; i<count; i++) {
-                data.push({ life: Math.random(), radius: Math.random() * 2, angle: Math.random() * Math.PI * 2 });
+                data.push({ id: Math.random(), life: Math.random(), speed: 0.5 + Math.random(), angle: Math.random() * Math.PI * 2 });
+                positions[i*3+1] = -100; // Esconder inicial
             }
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             
             const canvas = document.createElement('canvas');
             canvas.width = 16; canvas.height = 16;
-            const context = canvas.getContext('2d');
-            const gradient = context.createRadialGradient(8, 8, 0, 8, 8, 8);
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
             gradient.addColorStop(0, 'rgba(255,255,255,1)');
             gradient.addColorStop(1, 'rgba(255,255,255,0)');
-            context.fillStyle = gradient;
-            context.fillRect(0,0,16,16);
+            ctx.fillStyle = gradient; ctx.fillRect(0,0,16,16);
 
             const material = new THREE.PointsMaterial({
-                size: size,
-                color: colorHex,
-                transparent: true,
-                opacity: 0.6,
-                map: new THREE.CanvasTexture(canvas),
-                depthWrite: false,
-                blending: THREE.AdditiveBlending
+                size: size, color: colorHex, transparent: true, opacity: 0.8,
+                map: new THREE.CanvasTexture(canvas), depthWrite: false, blending: THREE.AdditiveBlending
             });
             const points = new THREE.Points(geometry, material);
             scene.add(points);
-            return { points, data, positions, material };
+            return { points, data, positions, material, baseColor: colorHex };
         }
 
-        // Colores Base
-        const COLOR_UP = 0xfca5a5; // Rojo claro (Aire cálido)
-        const COLOR_FFD = 0x6ee7b7; // Verde (Lluvia)
-        const COLOR_RFD = 0xc084fc; // Púrpura (Eco en Gancho)
-        // Colores Radar
-        const RADAR_FFD = 0x22c55e; // Verde radar (dBZ Medio)
-        const RADAR_RFD = 0xef4444; // Rojo radar (dBZ Alto)
+        const updraftSys = createParticleSystem(4000, 0xfca5a5, 1.5); // Rojo/Cálido
+        const ffdSys = createParticleSystem(5000, 0x6ee7b7, 1.2);     // Verde/Lluvia
+        const rfdSys = createParticleSystem(3000, 0xc084fc, 1.2);     // Púrpura/RFD
 
-        const updraftSys = createParticleSystem(3000, COLOR_UP, 1.2);
-        const ffdSys = createParticleSystem(4000, COLOR_FFD, 1.0);
-        const rfdSys = createParticleSystem(2000, COLOR_RFD, 1.0);
+        const texts = {
+            single: {
+                shear: "< 10 m/s (Débil)", brn: "> 45",
+                process: "Térmico (Empuje). La descendente ocurre en la misma vertical, generando autodestrucción celular.",
+                severity: "Baja/Moderada. Fenómenos pulsantes cortos (Microbursts).",
+                stages: [
+                    "Cúmulus (Towering): Solo ascensos térmicos. Sin lluvia aún.",
+                    "Madurez: Coexisten UD y precipitación (FFD) en la misma columna.",
+                    "Disipación: La lluvia enfría la base y corta el suministro cálido (autodestrucción)."
+                ]
+            },
+            multi: {
+                shear: "10 - 20 m/s (Mod.)", brn: "> 45",
+                process: "Mecánico. El frente de ráfagas actúa como forzante para iniciar nuevas celdas 'hijas' en cadena.",
+                severity: "Moderada/Alta. Ráfagas lineales, inundaciones.",
+                stages: [
+                    "Iniciación: Celdas jóvenes empujadas por la cortante unidireccional.",
+                    "Sistema Organizado: Celdas en formación (frente) y disipación (atrás).",
+                    "Propagación: El frente de ráfagas domina y avanza rápidamente (Squall Line)."
+                ]
+            },
+            super: {
+                shear: "> 20 m/s (Intensa)", brn: "10 - 45 (Óptimo)",
+                process: "Dinámico. La rotación intensa genera succión por baja presión dinámica. Lluvia y UD separados.",
+                severity: "Extrema. Granizo > 5cm, tornados, ráfagas destructivas.",
+                stages: [
+                    "Formación: Corriente ascendente se inclina y comienza a rotar (Mesociclón).",
+                    "Madurez: FFD cae a un lado. La corriente ascendente no se interrumpe.",
+                    "Oclusión: El RFD desciende, envuelve el centro (Eco en Gancho) forzando tornadogénesis."
+                ]
+            }
+        };
 
-        // Frentes
-        const frontsGroup = new THREE.Group();
-        scene.add(frontsGroup);
-        const ffdFrontLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array(41).fill(new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 3 }));
-        const rfdFrontLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array(41).fill(new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 3 }));
-        frontsGroup.add(ffdFrontLine);
-        frontsGroup.add(rfdFrontLine);
+        function updateUIData() {
+            const data = texts[PARAMS.type];
+            document.getElementById('data-shear').innerText = data.shear;
+            document.getElementById('data-brn').innerText = data.brn;
+            document.getElementById('data-process').innerText = data.process;
+            document.getElementById('data-severity').innerText = data.severity;
+            
+            // Actualizar Vientos visuales según tipo
+            windArrows.forEach(obj => {
+                let vec = new THREE.Vector3(1,0,0);
+                if (PARAMS.type === 'single') vec.set(0.5, 0, 0); // Constante
+                else if (PARAMS.type === 'multi') vec.set(1 + obj.y*0.2, 0, 0.5); // Unidireccional creciente
+                else { // Supercelda: Hodógrafa curva
+                    let angle = Math.PI*1.2 - (obj.y*0.1);
+                    let speed = 1 + obj.y*0.15;
+                    vec.set(Math.cos(angle)*speed, 0, Math.sin(angle)*speed);
+                }
+                obj.arrow.setDirection(vec.normalize());
+                obj.arrow.setLength(2 + vec.length()*0.5, 0.5, 0.3);
+            });
+        }
 
         document.getElementById('storm-type').addEventListener('change', (e) => {
             PARAMS.type = e.target.value;
-            const helicityInput = document.getElementById('helicity');
-            if (PARAMS.type === 'single') {
-                helicityInput.disabled = true; PARAMS.shear = 0.2; document.getElementById('shear').value = 0.2;
-            } else if (PARAMS.type === 'multi') {
-                helicityInput.disabled = true; PARAMS.shear = 1.5; document.getElementById('shear').value = 1.5;
-            } else {
-                helicityInput.disabled = false;
-            }
-            updateMathPanelTexts();
+            updateUIData();
+            // Reset particles safety
+            [updraftSys, ffdSys, rfdSys].forEach(sys => {
+                for(let i=0; i<sys.data.length; i++) sys.positions[i*3+1] = -100;
+            });
         });
 
-        document.getElementById('shear').addEventListener('input', (e) => { PARAMS.shear = parseFloat(e.target.value); document.getElementById('val-shear').innerText = PARAMS.shear.toFixed(1); });
-        document.getElementById('helicity').addEventListener('input', (e) => { PARAMS.helicity = parseFloat(e.target.value); document.getElementById('val-helicity').innerText = PARAMS.helicity.toFixed(1); });
-        document.getElementById('show-wind').addEventListener('change', (e) => { windGroup.visible = e.target.checked; });
-        document.getElementById('show-fronts').addEventListener('change', (e) => { frontsGroup.visible = e.target.checked; });
+        const timeSlider = document.getElementById('lifecycle-slider');
+        timeSlider.addEventListener('input', (e) => {
+            PARAMS.time = parseFloat(e.target.value);
+            document.getElementById('time-percent').innerText = Math.round(PARAMS.time * 100) + '%';
+            
+            let stageIndex = PARAMS.time < 0.33 ? 0 : (PARAMS.time < 0.66 ? 1 : 2);
+            let stageNames = ["Formación / Cúmulus", "Madurez Activa", "Disipación / Oclusión"];
+            
+            document.getElementById('stage-label').innerText = stageNames[stageIndex];
+            document.getElementById('data-stage-desc').innerText = texts[PARAMS.type].stages[stageIndex];
+            
+            // Color de etapa
+            let badge = document.getElementById('stage-label');
+            badge.className = `stage-badge border ${stageIndex === 0 ? 'bg-indigo-900 text-indigo-300 border-indigo-500' : (stageIndex === 1 ? 'bg-green-900 text-green-300 border-green-500' : 'bg-red-900 text-red-300 border-red-500')}`;
+        });
 
-        // --- LÓGICA MODO RADAR ---
         document.getElementById('radar-mode').addEventListener('change', (e) => {
             PARAMS.radarMode = e.target.checked;
             if (PARAMS.radarMode) {
-                // Cámara Top-Down
-                camera.position.set(0, 45, 0);
-                camera.lookAt(0, 0, 0);
-                
-                // Ocultar aire y visuales de entorno
-                updraftSys.points.visible = false;
-                windGroup.visible = false;
-                gridHelper.visible = false;
-                document.getElementById('show-wind').disabled = true;
-
-                // Colores tipo Radar Doppler
-                ffdSys.material.color.setHex(RADAR_FFD);
-                rfdSys.material.color.setHex(RADAR_RFD);
-                scene.fog.density = 0; // Quitar niebla para ver claro desde arriba
+                camera.position.set(0, 70, 0); camera.lookAt(0, 0, 0);
+                scene.fog.density = 0; gridHelper.visible = false; windGroup.visible = false;
+                updraftSys.points.visible = false; // El aire limpio no se ve en radar
+                ffdSys.material.color.setHex(0x22c55e); // dBZ medio
+                rfdSys.material.color.setHex(0xef4444); // dBZ alto (Granizo/Hook)
             } else {
-                // Restaurar Cámara y Entorno
-                camera.position.set(20, 15, 30);
-                camera.lookAt(0, 0, 0);
-                
+                camera.position.set(30, 20, 40); camera.lookAt(0, 0, 0);
+                scene.fog.density = 0.015; gridHelper.visible = true; windGroup.visible = true;
                 updraftSys.points.visible = true;
-                windGroup.visible = document.getElementById('show-wind').checked;
-                gridHelper.visible = true;
-                document.getElementById('show-wind').disabled = false;
-
-                // Restaurar colores físicos
-                ffdSys.material.color.setHex(COLOR_FFD);
-                rfdSys.material.color.setHex(COLOR_RFD);
-                scene.fog.density = 0.015;
+                ffdSys.material.color.setHex(ffdSys.baseColor);
+                rfdSys.material.color.setHex(rfdSys.baseColor);
             }
         });
-
-        function updateMathPanelTexts() {
-            const mathWind = document.getElementById('math-wind');
-            const eqUp = document.getElementById('math-updraft');
-
-            if (PARAMS.type === 'single') {
-                mathWind.innerHTML = `V(z) ≈ V_0 (Cte)`;
-                eqUp.innerHTML = `dz/dt = √(2·CAPE)<br>x,y ≈ 0 (Ascenso vertical)`;
-            } else if (PARAMS.type === 'multi') {
-                mathWind.innerHTML = `V(z) = V_0 + γ·z (Unidireccional)`;
-                eqUp.innerHTML = `dz/dt = √(2·CAPE)<br>x(t) = Línea de convergencia`;
-            } else {
-                mathWind.innerHTML = `V(z) = V_0 + γ·z<br>Hodógrafa Curva`;
-                eqUp.innerHTML = `dz/dt = <span id="eq-w">0.00</span><br>dθ/dt = ω = <span id="eq-omega">0.00</span>`;
-            }
-        }
 
         const clock = new THREE.Clock();
 
         function animate() {
             requestAnimationFrame(animate);
             const dt = clock.getDelta();
-            const time = clock.getElapsedTime();
+            const t = PARAMS.time; // 0.0 to 1.0
 
-            // Actualizar Vectores de Viento
-            if(!PARAMS.radarMode) {
-                windArrows.forEach(obj => {
-                    const vector = calculateWindAtHeight(obj.y, PARAMS.shear);
-                    obj.arrow.setDirection(vector.clone().normalize());
-                    obj.arrow.setLength(1 + vector.length() * 0.3, 0.4, 0.2);
-                });
-            }
-
-            let omega = PARAMS.type === 'super' ? PARAMS.helicity * 2 : 0;
-
-            // 1. UPDRAFT (Corriente Ascendente)
-            for(let i=0; i<updraftSys.data.length; i++) {
-                let p = updraftSys.data[i];
-                p.life += dt * 0.2; 
-                if(p.life > 1) { p.life = 0; p.radius = 1 + Math.random()*3; p.angle = Math.random() * Math.PI * 2; }
-
-                let y = p.life * 25; 
-                p.angle += dt * omega * (1 - p.life*0.5); 
-
-                let currentRadius = p.radius + (y > 15 ? (y - 15) * 1.5 : 0);
-                let x = 0, z = 0;
-
-                if (PARAMS.type === 'single') {
-                    x = Math.cos(p.angle) * currentRadius * 0.5; z = Math.sin(p.angle) * currentRadius * 0.5;
-                } else if (PARAMS.type === 'multi') {
-                    x = (p.angle % (Math.PI*2) / (Math.PI*2) - 0.5) * 25; z = (Math.random() - 0.5) * 3;
-                    x += (y * y) * PARAMS.shear * 0.01;
-                } else {
-                    x = Math.cos(p.angle) * currentRadius; z = Math.sin(p.angle) * currentRadius;
-                    x += (y * y) * PARAMS.shear * 0.015; z += (y * y) * PARAMS.shear * 0.005;
-                }
-                updraftSys.positions[i*3] = x; updraftSys.positions[i*3+1] = y; updraftSys.positions[i*3+2] = z;
-            }
-            updraftSys.points.geometry.attributes.position.needsUpdate = true;
-
-            // 2. FFD (Lluvia Delantera)
-            for(let i=0; i<ffdSys.data.length; i++) {
-                let p = ffdSys.data[i];
-                let y = ffdSys.positions[i*3+1];
+            // 1. LÓGICA UNICELULAR (Masa de aire)
+            if (PARAMS.type === 'single') {
+                rfdSys.points.visible = false; // No hay RFD
                 
-                if(y <= 0.1 || isNaN(y)) { 
-                    p.life -= dt; 
-                    if(p.life < 0 || isNaN(y)) {
-                        ffdSys.positions[i*3+1] = 12 + Math.random()*8;
-                        if (PARAMS.type === 'single') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*5; ffdSys.positions[i*3+2] = (Math.random()-0.5)*5;
-                        } else if (PARAMS.type === 'multi') {
-                            ffdSys.positions[i*3] = (Math.random()-0.5)*25; ffdSys.positions[i*3+2] = -4 - Math.random()*6;
+                // Updraft: Cortado en la fase 3 por la lluvia
+                let updraftAlive = t < 0.7; 
+                
+                for(let i=0; i<updraftSys.data.length; i++) {
+                    let p = updraftSys.data[i];
+                    let y = updraftSys.positions[i*3+1];
+                    
+                    if(y < 0 || y > 20) {
+                        if (updraftAlive) {
+                            updraftSys.positions[i*3+1] = 0.1;
+                            let r = Math.random() * 4;
+                            updraftSys.positions[i*3] = Math.cos(p.angle) * r;
+                            updraftSys.positions[i*3+2] = Math.sin(p.angle) * r;
                         } else {
-                            ffdSys.positions[i*3] = 5 + Math.random()*15; ffdSys.positions[i*3+2] = 5 + Math.random()*15;
+                            updraftSys.positions[i*3+1] = -100; // Ocultar
                         }
-                        p.life = 1;
                     } else {
-                        ffdSys.positions[i*3] += (ffdSys.positions[i*3] > 0 ? 1 : -1) * Math.random() * dt * 2;
-                        ffdSys.positions[i*3+2] += (ffdSys.positions[i*3+2] > 0 ? 1 : -1) * Math.random() * dt * 2;
+                        updraftSys.positions[i*3+1] += 15 * dt * p.speed;
+                        let expansion = 1 + (y * 0.1);
+                        updraftSys.positions[i*3] += Math.cos(p.angle) * dt * expansion;
+                        updraftSys.positions[i*3+2] += Math.sin(p.angle) * dt * expansion;
                     }
-                } else {
-                    ffdSys.positions[i*3+1] -= (5 + Math.random()*3) * dt;
-                    let wind = calculateWindAtHeight(y, PARAMS.shear);
-                    ffdSys.positions[i*3] += (PARAMS.type === 'single' ? 0 : wind.x * dt * 0.5);
-                    ffdSys.positions[i*3+2] += (PARAMS.type === 'single' ? 0 : wind.z * dt * 0.5);
+                }
+
+                // Rain (FFD): Cae exactamente en el centro, matando la celda
+                let rainActive = t > 0.3;
+                for(let i=0; i<ffdSys.data.length; i++) {
+                    let y = ffdSys.positions[i*3+1];
+                    if(y < 0.1 || isNaN(y)) {
+                        if (rainActive && Math.random() > 0.5) {
+                            ffdSys.positions[i*3+1] = 15 + Math.random()*5;
+                            let r = Math.random() * (t > 0.6 ? 8 : 4); // Se expande abajo al final (Microburst)
+                            ffdSys.positions[i*3] = Math.cos(ffdSys.data[i].angle) * r;
+                            ffdSys.positions[i*3+2] = Math.sin(ffdSys.data[i].angle) * r;
+                        } else {
+                            ffdSys.positions[i*3+1] = -100;
+                        }
+                    } else {
+                        ffdSys.positions[i*3+1] -= 20 * dt;
+                        if (t > 0.6 && y < 2) { // Microburst splash radial
+                             ffdSys.positions[i*3] += Math.cos(ffdSys.data[i].angle) * 15 * dt;
+                             ffdSys.positions[i*3+2] += Math.sin(ffdSys.data[i].angle) * 15 * dt;
+                        }
+                    }
                 }
             }
-            ffdSys.points.geometry.attributes.position.needsUpdate = true;
 
-            // 3. RFD (Eco en Gancho)
-            rfdSys.points.visible = (PARAMS.type === 'super');
-            if (PARAMS.type === 'super') {
+            // 2. LÓGICA MULTICELULAR (Squall Line)
+            else if (PARAMS.type === 'multi') {
+                rfdSys.points.visible = false;
+                
+                // Frente de ráfagas avanza en X
+                let gustFrontX = (t * 30) - 15; 
+
+                for(let i=0; i<updraftSys.data.length; i++) {
+                    let p = updraftSys.data[i];
+                    let y = updraftSys.positions[i*3+1];
+                    
+                    if(y < 0 || y > 20) {
+                        updraftSys.positions[i*3+1] = 0.1;
+                        // Nace SIEMPRE justo sobre el frente de ráfagas
+                        updraftSys.positions[i*3] = gustFrontX + (Math.random() * 3);
+                        updraftSys.positions[i*3+2] = (Math.random() - 0.5) * 20; // Línea larga en Z
+                    } else {
+                        updraftSys.positions[i*3+1] += 12 * dt;
+                        // El viento en altura empuja hacia adelante (+X)
+                        updraftSys.positions[i*3] += (1 + y * 0.2) * dt; 
+                    }
+                }
+
+                // Lluvia cae por detrás del frente
+                for(let i=0; i<ffdSys.data.length; i++) {
+                    let y = ffdSys.positions[i*3+1];
+                    if(y < 0.1 || isNaN(y)) {
+                        ffdSys.positions[i*3+1] = 10 + Math.random()*8;
+                        // Cae atrás (-X relativo al frente)
+                        ffdSys.positions[i*3] = gustFrontX - 5 - (Math.random() * 10);
+                        ffdSys.positions[i*3+2] = (Math.random() - 0.5) * 20;
+                    } else {
+                        ffdSys.positions[i*3+1] -= 15 * dt;
+                        ffdSys.positions[i*3] += dt * 2; // Arrastre leve
+                    }
+                }
+            }
+
+            // 3. LÓGICA SUPERCELDA (Clásica Rotacional)
+            else if (PARAMS.type === 'super') {
+                rfdSys.points.visible = true;
+                
+                // Succión dinámica: el updraft se contrae al final (conservación angular)
+                let constriction = t > 0.7 ? (1 - (t-0.7)*2) : 1; 
+                constriction = Math.max(0.2, constriction);
+
+                for(let i=0; i<updraftSys.data.length; i++) {
+                    let p = updraftSys.data[i];
+                    let y = updraftSys.positions[i*3+1];
+                    
+                    if(y < 0 || y > 25) {
+                        updraftSys.positions[i*3+1] = 0.1;
+                        p.angle = Math.random() * Math.PI * 2;
+                        p.radius = Math.random() * 4 * constriction;
+                    } else {
+                        updraftSys.positions[i*3+1] += 18 * dt;
+                        // Rotación pura (Mesociclón)
+                        p.angle -= dt * 2 * (1/constriction); // Gira más rápido al contraerse
+                        let currentR = p.radius + (y * 0.2 * constriction);
+                        updraftSys.positions[i*3] = Math.cos(p.angle) * currentR;
+                        updraftSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
+                        // Inclinación por viento (Shear)
+                        updraftSys.positions[i*3] += y * y * 0.01;
+                        updraftSys.positions[i*3+2] += y * y * 0.005;
+                    }
+                }
+
+                // FFD: Cae separado hacia adelante/derecha
+                let rainActive = t > 0.2;
+                for(let i=0; i<ffdSys.data.length; i++) {
+                    let y = ffdSys.positions[i*3+1];
+                    if(y < 0.1 || isNaN(y)) {
+                        if (rainActive) {
+                            ffdSys.positions[i*3+1] = 15 + Math.random()*10;
+                            ffdSys.positions[i*3] = 5 + Math.random()*15;
+                            ffdSys.positions[i*3+2] = 5 + Math.random()*15;
+                        } else ffdSys.positions[i*3+1] = -100;
+                    } else {
+                        ffdSys.positions[i*3+1] -= 18 * dt;
+                        ffdSys.positions[i*3] += dt * 3;
+                    }
+                }
+
+                // RFD: Desciende y envuelve (Hook Echo) solo en fase media/tardía
+                let rfdActive = t > 0.5;
                 for(let i=0; i<rfdSys.data.length; i++) {
                     let p = rfdSys.data[i];
                     let y = rfdSys.positions[i*3+1];
-                    if(isNaN(y)) y = 0; 
-
-                    if(y <= 0.1) {
-                        p.life -= dt;
-                        if(p.life < 0) {
-                            rfdSys.positions[i*3+1] = 8 + Math.random()*5;
-                            rfdSys.positions[i*3] = -5 - Math.random()*5; rfdSys.positions[i*3+2] = -5 + Math.random()*5;
-                            p.life = 1; p.angle = Math.PI; 
-                        } else {
-                            p.angle -= dt * 2; 
-                            let r = 2 + p.life * 3;
-                            rfdSys.positions[i*3] = Math.cos(p.angle) * r; rfdSys.positions[i*3+2] = Math.sin(p.angle) * r;
-                        }
+                    
+                    if(y < 0.1 || isNaN(y)) {
+                        if (rfdActive) {
+                            rfdSys.positions[i*3+1] = 10 + Math.random()*5;
+                            p.angle = Math.PI * 0.5; // Empieza desde atrás
+                            p.radius = 8 + Math.random()*4;
+                        } else rfdSys.positions[i*3+1] = -100;
                     } else {
-                        rfdSys.positions[i*3+1] -= (6 + Math.random()*2) * dt;
-                        p.angle -= dt * PARAMS.helicity * 0.5; 
-                        let currentR = 4 + y*0.2;
-                        rfdSys.positions[i*3] = Math.cos(p.angle) * currentR; rfdSys.positions[i*3+2] = Math.sin(p.angle) * currentR;
+                        rfdSys.positions[i*3+1] -= 12 * dt;
+                        // Envuelve hacia adentro (Hooking)
+                        p.angle -= dt * 1.5;
+                        p.radius -= dt * 0.5;
+                        if(p.radius < 2) p.radius = 2; // Evita colapso total
+                        
+                        rfdSys.positions[i*3] = Math.cos(p.angle) * p.radius;
+                        rfdSys.positions[i*3+2] = Math.sin(p.angle) * p.radius;
                     }
                 }
-            } else {
-                for(let i=0; i<rfdSys.data.length; i++) rfdSys.positions[i*3+1] = -100; // Esconder en suelo seguro
             }
+
+            // Avisar a la GPU de los cambios matemáticos
+            updraftSys.points.geometry.attributes.position.needsUpdate = true;
+            ffdSys.points.geometry.attributes.position.needsUpdate = true;
             rfdSys.points.geometry.attributes.position.needsUpdate = true;
-
-            // 4. Frentes de ráfagas
-            let ptsFront1 = ffdFrontLine.geometry.attributes.position.array;
-            let ptsFront2 = rfdFrontLine.geometry.attributes.position.array;
-            
-            for(let i=0; i<=40; i++) {
-                let t = i/40;
-                let scalePulse = 1 + Math.sin(time * 2) * 0.05; 
-                
-                if (PARAMS.type === 'single') {
-                    let angle = t * Math.PI * 2; let radius = 6 * scalePulse;
-                    ptsFront1[i*3] = Math.cos(angle) * radius; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = Math.sin(angle) * radius;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
-                } else if (PARAMS.type === 'multi') {
-                    ptsFront1[i*3] = (t - 0.5) * 35; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = 5 * scalePulse;
-                    ptsFront2[i*3] = 0; ptsFront2[i*3+1] = -10; ptsFront2[i*3+2] = 0; 
-                } else {
-                    ptsFront1[i*3] = 5 + (t)*15 * scalePulse; ptsFront1[i*3+1] = 0.1; ptsFront1[i*3+2] = -5 + (t)*25 * scalePulse;
-                    let angleRFD = t * Math.PI; let rRFD = (3 + t*2) * scalePulse;
-                    ptsFront2[i*3] = -rRFD*Math.cos(angleRFD); ptsFront2[i*3+1] = 0.1; ptsFront2[i*3+2] = -rRFD*Math.sin(angleRFD);
-                }
-            }
-            ffdFrontLine.geometry.attributes.position.needsUpdate = true;
-            rfdFrontLine.geometry.attributes.position.needsUpdate = true;
-            rfdFrontLine.visible = document.getElementById('show-fronts').checked && (PARAMS.type === 'super') && !PARAMS.radarMode;
-            ffdFrontLine.visible = document.getElementById('show-fronts').checked && !PARAMS.radarMode;
-
-            // Actualización segura de textos matemáticos
-            const elW = document.getElementById('eq-w');
-            if (elW) elW.innerText = `${(PARAMS.cape * 0.1).toFixed(2)} m/s`;
-            const elOmega = document.getElementById('eq-omega');
-            if (elOmega) elOmega.innerText = `${(PARAMS.helicity * 0.05).toFixed(2)} rad/s`;
 
             controls.update();
             renderer.render(scene, camera);
@@ -523,7 +508,12 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        updateMathPanelTexts(); 
+        // Initialize First State
+        updateUIData();
+        
+        // Disparar evento de slider manual para iniciar vista
+        timeSlider.dispatchEvent(new Event('input')); 
+        
         animate();
     </script>
 </body>
