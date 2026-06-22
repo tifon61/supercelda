@@ -857,40 +857,14 @@ function buildExtCard(day, cardClass) {
 }
 
 // ─── SOLUCIÓN ANTI-CORS Y MULTI-PROXY ────────────────────────────────────────
+// ─── CONEXIÓN DIRECTA (Sin proxies, ya que ahora el script permite CORS) ────
 async function fetchForecastData(url) {
-    // 1. Intento de conexión directa
-    try {
-        const response = await fetch(url);
-        const text = await response.text();
-        try { return JSON.parse(text); } catch (e) { throw new Error("No JSON"); }
-    } catch (err) {
-        console.warn('Conexión directa bloqueada. Intentando Proxy 1 (CorsProxy)...');
-    }
+    const response = await fetch(url, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al conectar con el servidor');
+    return await response.json();
+}
 
-    // 2. Intento con Proxy 1 (CorsProxy)
-    try {
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
-        const text = await response.text();
-        try { return JSON.parse(text); } catch (e) { throw new Error("No JSON"); }
-    } catch (err) {
-        console.warn('Proxy 1 falló. Intentando Proxy 2 (AllOrigins)...');
-    }
-
-    // 3. Intento con Proxy 2 (AllOrigins)
-    try {
-        const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const response2 = await fetch(proxyUrl2);
-        const data2 = await response2.json();
-        
-        if (data2.contents) {
-            try {
-                return JSON.parse(data2.contents);
-            } catch(e) {
-                // Si falla aquí, Google devolvió un error en lugar del JSON.
-                console.error("Google devolvió un error (HTML) en lugar de datos:", data2.contents.substring(0, 200) + "...");
-                return { error: "El código del script está desactualizado o tiene un error. Asegúrate de publicar una 'Nueva versión' en Apps Script." };
-            }
+    
         }
         return { error: "El proxy no devolvió contenido." };
     } catch (err) {
