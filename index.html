@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portaal Meteorológico | FCAG - UNLP</title>
+    <title>Portal Meteorológico | FCAG - UNLP</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -856,39 +856,45 @@ function buildExtCard(day, cardClass) {
     </div>`;
 }
 
-// ─── SOLUCIÓN ANTI-CORS (REEMPLAZA AL REINTENTO ANTERIOR) ─────────────────────
+// ─── SOLUCIÓN ANTI-CORS Y MULTI-PROXY ────────────────────────────────────────
 async function fetchForecastData(url) {
+    // 1. Intento de conexión directa
     try {
-        // 1. Intento de conexión directa
         const response = await fetch(url);
         const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error('La respuesta no es JSON (posible error de Google)');
-        }
+        try { return JSON.parse(text); } catch (e) { throw new Error("No JSON"); }
     } catch (err) {
-        console.warn('Google bloqueó por CORS. Cruzando por Proxy Avanzado...');
+        console.warn('Conexión directa bloqueada. Intentando Proxy 1 (CorsProxy)...');
+    }
+
+    // 2. Intento con Proxy 1 (CorsProxy)
+    try {
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        const text = await response.text();
+        try { return JSON.parse(text); } catch (e) { throw new Error("No JSON"); }
+    } catch (err) {
+        console.warn('Proxy 1 falló. Intentando Proxy 2 (AllOrigins)...');
+    }
+
+    // 3. Intento con Proxy 2 (AllOrigins)
+    try {
+        const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const response2 = await fetch(proxyUrl2);
+        const data2 = await response2.json();
         
-        // 2. Usamos la ruta /get de AllOrigins. Esto procesa el redirect 302 internamente
-        // y nos devuelve un objeto seguro { contents: "..." } evadiendo el error 520
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const proxyResponse = await fetch(proxyUrl);
-        
-        if (!proxyResponse.ok) throw new Error('Error en el proxy');
-        const proxyData = await proxyResponse.json();
-        
-        if (proxyData.contents) {
+        if (data2.contents) {
             try {
-                // AllOrigins empaqueta la respuesta original dentro de 'contents'
-                return JSON.parse(proxyData.contents);
+                return JSON.parse(data2.contents);
             } catch(e) {
-                console.error("Respuesta devuelta por el proxy:", proxyData.contents);
-                throw new Error('Se conectó a Google, pero no devolvió un formato válido. Revisa los permisos.');
+                // Si falla aquí, Google devolvió un error en lugar del JSON.
+                console.error("Google devolvió un error (HTML) en lugar de datos:", data2.contents.substring(0, 200) + "...");
+                return { error: "El código del script está desactualizado o tiene un error. Asegúrate de publicar una 'Nueva versión' en Apps Script." };
             }
-        } else {
-            throw new Error('El proxy no devolvió datos.');
         }
+        return { error: "El proxy no devolvió contenido." };
+    } catch (err) {
+        return { error: "Fallaron todos los canales de conexión con Google Sheets." };
     }
 }
 
