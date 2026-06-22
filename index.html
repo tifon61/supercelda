@@ -856,19 +856,19 @@ function buildExtCard(day, cardClass) {
     </div>`;
 }
 
-// ─── SOLUCIÓN ANTI-CORS Y MULTI-PROXY ────────────────────────────────────────
-// ─── CONEXIÓN DIRECTA (Sin proxies, ya que ahora el script permite CORS) ────
-async function fetchForecastData(url) {
-    const response = await fetch(url, { method: 'GET' });
-    if (!response.ok) throw new Error('Error al conectar con el servidor');
-    return await response.json();
-}
 
-    
+// ─── CONEXIÓN DIRECTA (Sin proxies, ya que ahora el script permite CORS) ────
+// ─── CONEXIÓN DIRECTA Y EFICIENTE ───────────────────────────────────────────
+async function fetchForecastData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Error al conectar con la base de datos');
         }
-        return { error: "El proxy no devolvió contenido." };
+        return await response.json();
     } catch (err) {
-        return { error: "Fallaron todos los canales de conexión con Google Sheets." };
+        console.error('Error de conexión:', err);
+        throw err; // El error se maneja en fetchForecast
     }
 }
 
