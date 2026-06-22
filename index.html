@@ -861,15 +861,34 @@ async function fetchForecastData(url) {
     try {
         // 1. Intento de conexión directa
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Error en la respuesta de la red');
-        return await response.json();
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('La respuesta no es JSON (posible error de Google)');
+        }
     } catch (err) {
-        console.warn('Google bloqueó por CORS. Cruzando por Proxy...');
-        // 2. Si Google bloquea por CORS, usamos un proxy como salvavidas
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        console.warn('Google bloqueó por CORS. Cruzando por Proxy Avanzado...');
+        
+        // 2. Usamos la ruta /get de AllOrigins. Esto procesa el redirect 302 internamente
+        // y nos devuelve un objeto seguro { contents: "..." } evadiendo el error 520
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
         const proxyResponse = await fetch(proxyUrl);
+        
         if (!proxyResponse.ok) throw new Error('Error en el proxy');
-        return await proxyResponse.json();
+        const proxyData = await proxyResponse.json();
+        
+        if (proxyData.contents) {
+            try {
+                // AllOrigins empaqueta la respuesta original dentro de 'contents'
+                return JSON.parse(proxyData.contents);
+            } catch(e) {
+                console.error("Respuesta devuelta por el proxy:", proxyData.contents);
+                throw new Error('Se conectó a Google, pero no devolvió un formato válido. Revisa los permisos.');
+            }
+        } else {
+            throw new Error('El proxy no devolvió datos.');
+        }
     }
 }
 
