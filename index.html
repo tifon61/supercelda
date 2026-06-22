@@ -29,7 +29,6 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); overflow-x: hidden; height: 100vh; display: flex; flex-direction: column; }
         h1,h2,h3,.montserrat { font-family: 'Montserrat', sans-serif; }
 
-        /* HEADER */
         header { background: white; padding: 0 2rem; height: 66px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--primary); box-shadow: 0 2px 12px rgba(0,0,0,0.06); z-index: 1000; flex-shrink: 0; }
         .header-left { display: flex; align-items: center; gap: 14px; }
         .header-left img { height: 42px; object-fit: contain; }
@@ -39,7 +38,6 @@
         .nav-btn:hover { background: var(--bg-body); color: var(--primary); }
         .nav-btn.active { background: var(--primary); color: white; }
 
-        /* LAYOUT */
         .app-container { display: flex; flex: 1; overflow: hidden; }
         .view-section { display: none; width: 100%; height: 100%; overflow-y: auto; padding: 28px; }
         .view-section.active { display: block; }
@@ -49,14 +47,12 @@
         .data-panel { flex: 1; min-width: 500px; max-width: 640px; background: var(--bg-body); overflow-y: auto; border-left: 1px solid var(--border); z-index: 10; padding: 18px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
         .card { background: white; border-radius: 14px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
-        /* CIUDAD HEADER */
         .city-bar { background: var(--primary); border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; color: white; }
         .city-bar h2 { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; line-height: 1; }
         .city-bar .sub { font-size: 0.7rem; opacity: 0.7; font-weight: 600; margin-top: 2px; }
         .emission-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
         .emission-pill span { display: block; font-size: 1.1rem; font-weight: 900; margin-top: 1px; }
 
-        /* PRONÓSTICO */
         .fcast-block { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
         .fcast-day-hdr { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; color: white; }
         .fcast-day-hdr.d0 { background: var(--primary); }
@@ -117,7 +113,6 @@
         .ext-wind-arrows { display: flex; gap: 6px; }
         .ext-wind-txt { font-size: 0.78rem; font-weight: 700; color: var(--primary); }
 
-        /* MONITOREO EN VIVO */
         .monitor-layout { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 40px; }
         .monitor-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
         .monitor-top-bar h2 { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; color: var(--primary); font-weight: 900; margin: 0; }
@@ -169,7 +164,6 @@
         .media-card h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
         .media-card img { width: 100%; border-radius: 10px; border: 1px solid var(--border); }
 
-        /* ALERTAS y ESTADOS */
         .alert-card { background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--danger); border-radius: 12px; padding: 14px 16px; }
         .alert-card h3 { font-size: 0.8rem; color: var(--danger); font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
         #welcome-panel { text-align: center; color: var(--text-muted); padding: 50px 20px; }
@@ -180,7 +174,6 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .hidden { display: none !important; }
 
-        /* VISTAS ESTÁTICAS */
         .content-layout { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; padding-bottom: 50px; }
         .section-heading { font-size: 1.6rem; color: var(--primary); font-weight: 900; margin: 0 0 5px 0; border-bottom: 3px solid var(--secondary); padding-bottom: 8px; display: inline-block; }
         .section-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 18px; }
@@ -210,7 +203,6 @@
         .contact-form input,.contact-form textarea,.contact-form select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 0.95rem; }
         .contact-form button { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-        /* INSTAGRAM FACADE */
         .ig-facade { border-radius: 16px; overflow: hidden; background: white; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.08); cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s; }
         .ig-facade:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.14); }
         .ig-facade:hover .ig-facade-overlay { opacity: 1; }
@@ -228,7 +220,6 @@
         .ig-iframe-wrap iframe { display: block; }
         .ig-loading { height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--bg-body); border-radius: 16px; color: var(--text-muted); font-weight: 600; }
 
-        /* RESPONSIVE */
         @media (max-width: 1100px) {
             .metrics-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
@@ -301,8 +292,6 @@
     <!-- MONITOREO EN VIVO -->
     <div id="view-monitoreo" class="view-section">
         <div class="monitor-layout">
-
-            <!-- Barra superior -->
             <div class="monitor-top-bar">
                 <h2>📡 Monitoreo en Vivo</h2>
                 <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -313,8 +302,6 @@
                     <div class="rt-updated" id="rt-updated-lbl">Última actualización: --</div>
                 </div>
             </div>
-
-            <!-- 4 métricas principales -->
             <div class="metrics-grid">
                 <div class="metric-card temp">
                     <div class="metric-label">🌡 Temperatura</div>
@@ -337,20 +324,15 @@
                     <div class="metric-trend" id="m-wind-dir-lbl">Dirección: --</div>
                 </div>
             </div>
-
-            <!-- Rosa de vientos detallada -->
             <div class="wind-detail-card">
                 <div class="wind-compass-wrap">
                     <div class="wind-compass">
                         <svg width="110" height="110" viewBox="0 0 110 110">
-                            <!-- Círculos de fondo -->
                             <circle cx="55" cy="55" r="50" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
                             <circle cx="55" cy="55" r="35" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
                             <circle cx="55" cy="55" r="18" fill="none" stroke="#e2e8f0" stroke-width="1"/>
-                            <!-- Líneas cardinales -->
                             <line x1="55" y1="5" x2="55" y2="105" stroke="#e2e8f0" stroke-width="1"/>
                             <line x1="5" y1="55" x2="105" y2="55" stroke="#e2e8f0" stroke-width="1"/>
-                            <!-- Flecha de dirección (rota con JS) -->
                             <g id="compass-arrow" transform="rotate(0 55 55)">
                                 <polygon points="55,10 60,55 55,48 50,55" fill="#ef4444"/>
                                 <polygon points="55,100 60,55 55,62 50,55" fill="#94a3b8"/>
@@ -368,17 +350,11 @@
                 <div class="wind-info">
                     <div>
                         <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px;">Velocidad</div>
-                        <div>
-                            <span class="wind-speed-big" id="wind-big">--</span>
-                            <span class="wind-speed-unit">km/h</span>
-                        </div>
+                        <div><span class="wind-speed-big" id="wind-big">--</span><span class="wind-speed-unit">km/h</span></div>
                     </div>
                     <div>
                         <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px;">Dirección</div>
-                        <div>
-                            <span class="wind-dir-text" id="wind-dir-text">--</span>
-                            <span class="wind-dir-deg" id="wind-dir-deg"></span>
-                        </div>
+                        <div><span class="wind-dir-text" id="wind-dir-text">--</span><span class="wind-dir-deg" id="wind-dir-deg"></span></div>
                     </div>
                     <div style="background:var(--bg-body); border-radius:10px; padding:12px 16px;">
                         <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">Velocidad últimas 24h</div>
@@ -386,40 +362,24 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Gráficos -->
             <div class="charts-grid">
                 <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🌡 Temperatura</h3>
-                        <span class="chart-card-val temp" id="cv-temp">--°C</span>
-                    </div>
+                    <div class="chart-card-title"><h3>🌡 Temperatura</h3><span class="chart-card-val temp" id="cv-temp">--°C</span></div>
                     <div class="chart-inner"><canvas id="chartTemp"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>💧 Humedad Relativa</h3>
-                        <span class="chart-card-val hum" id="cv-hum">--%</span>
-                    </div>
+                    <div class="chart-card-title"><h3>💧 Humedad Relativa</h3><span class="chart-card-val hum" id="cv-hum">--%</span></div>
                     <div class="chart-inner"><canvas id="chartHum"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🔵 Presión Atmosférica</h3>
-                        <span class="chart-card-val pres" id="cv-pres">-- hPa</span>
-                    </div>
+                    <div class="chart-card-title"><h3>🔵 Presión Atmosférica</h3><span class="chart-card-val pres" id="cv-pres">-- hPa</span></div>
                     <div class="chart-inner"><canvas id="chartPres"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-card-title">
-                        <h3>🌬 Viento (km/h)</h3>
-                        <span class="chart-card-val wind" id="cv-wind">-- km/h</span>
-                    </div>
+                    <div class="chart-card-title"><h3>🌬 Viento (km/h)</h3><span class="chart-card-val wind" id="cv-wind">-- km/h</span></div>
                     <div class="chart-inner"><canvas id="chartWind"></canvas></div>
                 </div>
             </div>
-
-            <!-- Radar y Satélite -->
             <div class="monitor-main-grid">
                 <div class="media-card">
                     <h3>Radar Meteorológico</h3>
@@ -430,7 +390,6 @@
                     <img src="https://placehold.co/800x400/1e293b/white?text=Satélite+Infrarrojo" alt="Satélite">
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -568,14 +527,31 @@ function switchView(viewId, btn) {
     if (viewId === 'dashboard' && window._map) setTimeout(() => window._map.invalidateSize(), 100);
 }
 
-// ─── CONFIGURACIÓN THINGSPEAK ────────────────────────────────────────────────
-const TS_CHANNEL   = "2823820";
-const TS_KEY       = "FFI1HK80ZKDNS6V8";
-const TS_URL       = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&days=1&average=30`;
-
+// ─── THINGSPEAK ──────────────────────────────────────────────────────────────
+const TS_CHANNEL = "2823820";
+const TS_KEY     = "FFI1HK80ZKDNS6V8";
+const TS_URL     = `https://api.thingspeak.com/channels/${TS_CHANNEL}/feeds.json?api_key=${TS_KEY}&days=1&average=30`;
 const TS_F = { temp:'field1', hum:'field4', pres:'field6', wspeed:'field7', wdir:'field8' };
+
 const WIND_ANGLES = { norte:180, noreste:225, este:270, sudeste:315, sur:0, sudoeste:45, oeste:90, noroeste:135 };
 const PERIOD_SHORT = { "mañana":"MAÑANA","tarde":"TARDE","noche":"NOCHE","madrugada":"MADRUGADA","madrugada/mañana":"MAD/MAÑ","tarde/noche":"TAR/NOCH" };
+
+// Mapa de iconos (sky_condition en minúscula → archivo)
+const iconMap = {
+    "despejado":                         { dia: "soleado.png",                   noche: "Despejado_noche.png" },
+    "ligeramente nublado":               { dia: "Ligeramente_nublado_dia.png",    noche: "Ligeramente_nublado_noche.png" },
+    "algo nublado":                      { dia: "Algo_nublado_dia.png",           noche: "Algo_nublado_noche.png" },
+    "parcialmente nublado":              { dia: "Parcialmente_nublado_dia.png",   noche: "Parcialmente_nublado_noche.png" },
+    "cubierto":                          { dia: "Cubierto_dia.png",               noche: "Cubierto_noche.png" },
+    "neblinas":                          { dia: "Nieblas_dia.png",                noche: "Nieblas_noche.png" },
+    "nieblas":                           { dia: "Nieblas_dia.png",                noche: "Nieblas_noche.png" },
+    "lluvias aisladas":                  { dia: "Lluvia_dia.png",                 noche: "Lluvia_noche.png" },
+    "lloviznas":                         { dia: "Lluvia_dia.png",                 noche: "Lluvia_noche.png" },
+    "lluvias y tormentas aisladas":      { dia: "Tormentas_dia.png",              noche: "Tormentas_noche.png" },
+    "tormentas aisladas":                { dia: "Tormentas_dia.png",              noche: "Tormentas_noche.png" }
+};
+
+const RAIN_TYPES = ["lluvias aisladas","lloviznas","lluvias y tormentas aisladas","tormentas aisladas"];
 
 let _charts = {};
 
@@ -586,15 +562,14 @@ window.onload = () => {
     setInterval(fetchTS, 5 * 60 * 1000);
 };
 
+// ─── HELPERS GENERALES ───────────────────────────────────────────────────────
+function setText(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
 function degreesToCardinal(deg) {
     if (deg == null || isNaN(deg)) return '--';
     const dirs = ['Norte','Noreste','Este','Sudeste','Sur','Sudoeste','Oeste','Noroeste'];
-    const d = ((deg % 360) + 360) % 360;
-    return dirs[Math.round(d / 45) % 8];
-}
-
-function compassRotation(deg) {
-    return ((deg % 360) + 360) % 360;
+    return dirs[Math.round(((deg % 360) + 360) % 360 / 45) % 8];
 }
 
 // ─── MAPA ────────────────────────────────────────────────────────────────────
@@ -604,9 +579,12 @@ function initMap() {
     window._map = L.map('map', { center:[-36.5,-60.0], zoom:6, layers:[std] });
     L.control.layers({ "Estándar":std, "Satélite":sat }).addTo(window._map);
     const cities = [
-        { name:"La Plata", coords:[-34.921,-57.955] }, { name:"Junín", coords:[-34.585,-60.944] },
-        { name:"Bolívar", coords:[-36.233,-61.116] },  { name:"Tandil", coords:[-37.321,-59.133] },
-        { name:"Mar del Plata", coords:[-38.005,-57.542] }, { name:"Bahía Blanca", coords:[-38.719,-62.272] }
+        { name:"La Plata",      coords:[-34.921,-57.955] },
+        { name:"Junín",         coords:[-34.585,-60.944] },
+        { name:"Bolívar",       coords:[-36.233,-61.116] },
+        { name:"Tandil",        coords:[-37.321,-59.133] },
+        { name:"Mar del Plata", coords:[-38.005,-57.542] },
+        { name:"Bahía Blanca",  coords:[-38.719,-62.272] }
     ];
     cities.forEach(c => {
         L.marker(c.coords).addTo(window._map)
@@ -631,94 +609,64 @@ async function loadCity(city) {
     fetchForecast(city);
 }
 
-// ─── THINGSPEAK ──────────────────────────────────────────────────────────────
+// ─── THINGSPEAK FETCH ────────────────────────────────────────────────────────
 async function fetchTS() {
     try {
         const r = await fetch(TS_URL + `&_t=${Date.now()}`);
         if (!r.ok) throw new Error('TS ' + r.status);
         const d = await r.json();
-
         if (!d.feeds || d.feeds.length === 0) {
-            document.getElementById('rt-updated-lbl').innerText = 'Sin datos disponibles';
+            setText('rt-updated-lbl', 'Sin datos disponibles');
             return;
         }
-
         const feeds  = d.feeds;
         const latest = feeds[feeds.length - 1];
-
         const temp   = parseFloat(latest[TS_F.temp]   || 'NaN');
         const hum    = parseFloat(latest[TS_F.hum]    || 'NaN');
         const pres   = parseFloat(latest[TS_F.pres]   || 'NaN');
         const wspeed = parseFloat(latest[TS_F.wspeed] || 'NaN');
         const wdir   = parseFloat(latest[TS_F.wdir]   || 'NaN');
-
         const fmt = (v, d) => isNaN(v) ? '--' : v.toFixed(d);
-
         setText('m-temp',  fmt(temp,   1));
         setText('m-hum',   fmt(hum,    0));
         setText('m-pres',  fmt(pres,   1));
         setText('m-wind',  fmt(wspeed, 1));
-
         const cardDir = degreesToCardinal(wdir);
         setText('m-wind-dir-lbl', `Dirección: ${cardDir} (${isNaN(wdir) ? '--' : Math.round(wdir)}°)`);
-
-        setText('cv-temp',  isNaN(temp)   ? '--'  : temp.toFixed(1) + '°C');
-        setText('cv-hum',   isNaN(hum)    ? '--'  : hum.toFixed(0)  + '%');
-        setText('cv-pres',  isNaN(pres)   ? '--'  : pres.toFixed(1) + ' hPa');
+        setText('cv-temp',  isNaN(temp)   ? '--'  : temp.toFixed(1)   + '°C');
+        setText('cv-hum',   isNaN(hum)    ? '--'  : hum.toFixed(0)    + '%');
+        setText('cv-pres',  isNaN(pres)   ? '--'  : pres.toFixed(1)   + ' hPa');
         setText('cv-wind',  isNaN(wspeed) ? '--'  : wspeed.toFixed(1) + ' km/h');
-
         setText('wind-big',      fmt(wspeed, 1));
         setText('wind-dir-text', cardDir);
         setText('wind-dir-deg',  isNaN(wdir) ? '' : `(${Math.round(wdir)}°)`);
         const arrowEl = document.getElementById('compass-arrow');
-        if (arrowEl && !isNaN(wdir)) {
-            arrowEl.setAttribute('transform', `rotate(${compassRotation(wdir)} 55 55)`);
-        }
-
+        if (arrowEl && !isNaN(wdir)) arrowEl.setAttribute('transform', `rotate(${((wdir%360)+360)%360} 55 55)`);
         const temps = feeds.map(f => parseFloat(f[TS_F.temp])).filter(v => !isNaN(v));
-        if (temps.length > 0) {
-            const mn = Math.min(...temps).toFixed(1);
-            const mx = Math.max(...temps).toFixed(1);
-            setText('m-temp-range', `Mín / Máx últimas 24h: ${mn}°C / ${mx}°C`);
-        }
-
+        if (temps.length > 0) setText('m-temp-range', `Mín / Máx últimas 24h: ${Math.min(...temps).toFixed(1)}°C / ${Math.max(...temps).toFixed(1)}°C`);
         const hums = feeds.map(f => parseFloat(f[TS_F.hum])).filter(v => !isNaN(v));
         if (hums.length >= 2) {
-            const diff = hums[hums.length-1] - hums[hums.length-4 < 0 ? 0 : hums.length-4];
-            const trend = diff > 1 ? '↑ Subiendo' : diff < -1 ? '↓ Bajando' : '→ Estable';
-            setText('m-hum-trend', trend);
+            const diff = hums[hums.length-1] - hums[Math.max(0, hums.length-4)];
+            setText('m-hum-trend', diff > 1 ? '↑ Subiendo' : diff < -1 ? '↓ Bajando' : '→ Estable');
         }
-
         const press = feeds.map(f => parseFloat(f[TS_F.pres])).filter(v => !isNaN(v));
         if (press.length >= 2) {
-            const diff = press[press.length-1] - press[press.length-4 < 0 ? 0 : press.length-4];
-            const trend = diff > 0.5 ? '↑ Subiendo' : diff < -0.5 ? '↓ Bajando' : '→ Estable';
-            setText('m-pres-trend', trend);
+            const diff = press[press.length-1] - press[Math.max(0, press.length-4)];
+            setText('m-pres-trend', diff > 0.5 ? '↑ Subiendo' : diff < -0.5 ? '↓ Bajando' : '→ Estable');
         }
-
-        const lastTime = new Date(latest.created_at);
-        const hh = lastTime.getHours().toString().padStart(2,'0');
-        const mm = lastTime.getMinutes().toString().padStart(2,'0');
-        setText('rt-updated-lbl', `Última actualización: ${hh}:${mm} hs`);
-
-        const labels = feeds.map(f => {
-            const t = new Date(f.created_at);
-            return `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`;
-        });
-
-        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])   || null), '#ef4444', 'rgba(239,68,68,0.12)',    'Temperatura (°C)');
-        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])    || null), '#0ea5e9', 'rgba(14,165,233,0.12)',   'Humedad (%)');
-        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])   || null), '#8b5cf6', 'rgba(139,92,246,0.12)',   'Presión (hPa)');
-        mkChart('chartWind',     labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.12)',   'Viento (km/h)');
-        mkChart('chartWindMini', labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.15)',   'Viento', true);
-
+        const lt = new Date(latest.created_at);
+        setText('rt-updated-lbl', `Última actualización: ${lt.getHours().toString().padStart(2,'0')}:${lt.getMinutes().toString().padStart(2,'0')} hs`);
+        const labels = feeds.map(f => { const t = new Date(f.created_at); return `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`; });
+        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])   || null), '#ef4444', 'rgba(239,68,68,0.12)',   'Temperatura (°C)');
+        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])    || null), '#0ea5e9', 'rgba(14,165,233,0.12)',  'Humedad (%)');
+        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])   || null), '#8b5cf6', 'rgba(139,92,246,0.12)',  'Presión (hPa)');
+        mkChart('chartWind',     labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.12)',  'Viento (km/h)');
+        mkChart('chartWindMini', labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.15)',  'Viento', true);
     } catch(e) {
         console.warn('ThingSpeak error:', e);
         setText('rt-updated-lbl', 'Error al conectar con la estación');
     }
 }
-
-function setText(id, val) { const el = document.getElementById(id); if (el) el.innerText = val; }
 
 function mkChart(id, labels, data, bc, bg, lbl, mini = false) {
     const ctx = document.getElementById(id)?.getContext('2d');
@@ -729,18 +677,16 @@ function mkChart(id, labels, data, bc, bg, lbl, mini = false) {
         data: { labels, datasets: [{ label: lbl, data, borderColor: bc, backgroundColor: bg, borderWidth: mini ? 1.5 : 2, pointRadius: 0, fill: true, tension: 0.4 }] },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: {
-                mode: 'index', intersect: false,
-                callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1) ?? '--'}` }
-            }},
+            plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false, callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1) ?? '--'}` } } },
             scales: {
-                x: { ticks: { maxTicksLimit: mini ? 4 : 8, font: { size: 10 }, color: '#94a3b8' }, grid: { display: false } },
-                y: { ticks: { font: { size: 10 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' } }
+                x: { ticks: { maxTicksLimit: mini ? 4 : 8, font:{ size:10 }, color:'#94a3b8' }, grid:{ display:false } },
+                y: { ticks: { font:{ size:10 }, color:'#94a3b8' }, grid:{ color:'#f1f5f9' } }
             }
         }
     });
 }
 
+// ─── INSTAGRAM FACADE ────────────────────────────────────────────────────────
 function loadIgEmbed(facade) {
     const url = facade.dataset.url;
     const parent = facade.parentElement;
@@ -752,223 +698,299 @@ function loadIgEmbed(facade) {
     wrap.className = 'ig-iframe-wrap';
     const iframe = document.createElement('iframe');
     iframe.src = url; iframe.width = '100%'; iframe.height = '480'; iframe.frameBorder = '0'; iframe.scrolling = 'no'; iframe.allowFullscreen = true; iframe.style.display = 'block';
-    iframe.onload = () => { wrap.appendChild(iframe); parent.replaceChild(wrap, loader); };
+    iframe.onload  = () => { wrap.appendChild(iframe); parent.replaceChild(wrap, loader); };
     iframe.onerror = () => { loader.innerHTML = '❌ No se pudo cargar.'; };
     document.body.appendChild(iframe);
 }
 
-// ─── MAPA DE ICONOS (IGUAL QUE EN EL ADMIN) ──────────────────────────────────
-const iconMap = {
-    "despejado": { dia: "soleado.png", noche: "Despejado_noche.png" },
-    "ligeramente nublado": { dia: "Ligeramente_nublado_dia.png", noche: "Ligeramente_nublado_noche.png" },
-    "algo nublado": { dia: "Algo_nublado_dia.png", noche: "Algo_nublado_noche.png" },
-    "parcialmente nublado": { dia: "Parcialmente_nublado_dia.png", noche: "Parcialmente_nublado_noche.png" },
-    "cubierto": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
-    "neblinas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
-    "nieblas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
-    "lluvias aisladas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
-    "lloviznas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
-    "lluvias y tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
-    "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
-};
-
-function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+// ─── HELPERS DE RENDER ───────────────────────────────────────────────────────
 function thermoSVG(color) {
     const bulb = color==='blue' ? '#00bcd4' : '#ef4444';
     const fy   = color==='blue' ? 25 : 15;
     const fh   = color==='blue' ? 42 : 52;
     return `<svg style="width:18px;height:54px;flex-shrink:0;" viewBox="0 0 30 90"><path d="M15 5 C10 5,10 12,10 15 L10 55 C5 60,5 70,10 75 C15 80,20 80,25 75 C30 70,30 60,25 55 L25 15 C25 12,25 5,15 5 Z" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="15" cy="67" r="9" fill="${bulb}"/><rect x="12" y="${fy}" width="6" height="${fh}" rx="3" fill="${bulb}"/></svg>`;
 }
+
 function windArrowDark(dir, size=30) {
     if (!dir) return '';
     const angle = WIND_ANGLES[dir.toLowerCase()] ?? 0;
     return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="3"/><g transform="rotate(${angle} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g></svg>`;
 }
+
 function popBadge(pop) {
-    if (!pop || pop==='0 %') return '';
-    const v = parseInt(pop); const c = v>=70?'high':v>=40?'med':'low';
+    if (!pop || pop === '0 %' || pop === '0%') return '';
+    const v = parseInt(pop);
+    const c = v >= 70 ? 'high' : v >= 40 ? 'med' : 'low';
     return `<div class="pc-pop ${c}">💧 ${pop} prob.</div>`;
 }
+
 function gustBadge(g) { return g ? `<div class="pc-gust">💨 Ráf. ${g} km/h</div>` : ''; }
+
 function windText(p) {
     if (!p.wind_intensity && !p.wind_direction) return '--';
-    let t = p.wind_intensity && p.wind_direction ? `${cap(p.wind_intensity)} del ${p.wind_direction}` : cap(p.wind_intensity || p.wind_direction);
+    let t = (p.wind_intensity && p.wind_direction)
+        ? `${cap(p.wind_intensity)} del ${p.wind_direction}`
+        : cap(p.wind_intensity || p.wind_direction);
     if (p.wind_gusts) t += ` · ráf. ${p.wind_gusts} km/h`;
     return t;
 }
+
 function skyDesc(p) {
     const parts = [];
-    if (p.probability_of_precipitation && p.probability_of_precipitation!=='0 %') parts.push(p.probability_of_precipitation+' prob.');
+    if (p.probability_of_precipitation && p.probability_of_precipitation !== '0 %' && p.probability_of_precipitation !== '0%') parts.push(p.probability_of_precipitation + ' prob.');
     if (p.precipitation_description) parts.push(p.precipitation_description);
     else if (p.sky_condition) parts.push(p.sky_condition);
     return parts.length ? cap(parts.join(' ')) : '--';
 }
+
 function tempBlock(day) {
-    const mU = day.temp_min!=null ? day.temp_min+'°' : '--';
-    const xU = day.temp_max!=null ? day.temp_max+'°' : '--';
-    const mS = day.temp_min_suburban!=null ? day.temp_min_suburban+'°*' : '--*';
-    const xS = day.temp_max_suburban!=null ? day.temp_max_suburban+'°*' : '--*';
+    const mU = day.temp_min  != null ? day.temp_min  + '°' : '--';
+    const xU = day.temp_max  != null ? day.temp_max  + '°' : '--';
+    const mS = day.temp_min_suburban != null ? day.temp_min_suburban + '°*' : '--*';
+    const xS = day.temp_max_suburban != null ? day.temp_max_suburban + '°*' : '--*';
     return `<div class="fcast-temps">
         <div class="fcast-temp-col">${thermoSVG('blue')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÍN</div><div class="fcast-temp-urb">${mU}</div><div class="fcast-temp-sub">${mS}</div></div></div>
         <div class="fcast-temp-col">${thermoSVG('red')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÁX</div><div class="fcast-temp-urb">${xU}</div><div class="fcast-temp-sub">${xS}</div></div></div>
     </div>`;
 }
+
 function buildPeriodCol(p) {
-    const icon=p.weather_icon_code||'default', label=PERIOD_SHORT[p.period]||p.period.toUpperCase();
-    const isNight=p.period==='noche'||p.period==='madrugada';
-    const sky=p.sky_condition||p.precipitation_description||'';
-    const ang=WIND_ANGLES[p.wind_direction?.toLowerCase()]??0;
+    const icon     = p.weather_icon_code || 'default';
+    const label    = PERIOD_SHORT[p.period] || p.period.toUpperCase();
+    const isNight  = p.period === 'noche' || p.period === 'madrugada';
+    const sky      = p.sky_condition || p.precipitation_description || '';
+    const ang      = WIND_ANGLES[(p.wind_direction || '').toLowerCase()] ?? 0;
     return `<div class="period-col">
         <div class="pc-period-lbl">${label}</div>
         <img class="pc-icon" src="images/${icon}.png" onerror="this.src='images/default.png'">
-        <div class="pc-temp ${isNight?'night':''}">${p.temperature!=null?p.temperature+'°':'--'}</div>
+        <div class="pc-temp ${isNight ? 'night' : ''}">${p.temperature != null ? p.temperature + '°' : '--'}</div>
         <div class="pc-sep"></div>
         <div class="pc-wind-block">
-            <div class="wind-circle"><svg width="18" height="18" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>${p.wind_direction?`<g transform="rotate(${ang} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g>`:''}</svg></div>
-            <div class="pc-wind-txt">${p.wind_intensity?cap(p.wind_intensity):'--'}</div>
+            <div class="wind-circle">
+                <svg width="18" height="18" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="46" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="3"/>
+                    ${p.wind_direction ? `<g transform="rotate(${ang} 50 50)"><path d="M35 72 L65 72 L65 42 L82 42 L50 12 L18 42 L35 42 Z" fill="#003f6b"/></g>` : ''}
+                </svg>
+            </div>
+            <div class="pc-wind-txt">${p.wind_intensity ? cap(p.wind_intensity) : '--'}</div>
         </div>
-        ${popBadge(p.probability_of_precipitation)}${gustBadge(p.wind_gusts)}
-        <div class="pc-sky">${sky?cap(sky):''}</div>
+        ${popBadge(p.probability_of_precipitation)}
+        ${gustBadge(p.wind_gusts)}
+        <div class="pc-sky">${sky ? cap(sky) : ''}</div>
     </div>`;
 }
+
 function buildExtCard(day, cardClass) {
-    const p1=day.period_forecasts?.[0], p2=day.period_forecasts?.[1];
-    const mU=day.temp_min!=null?day.temp_min+'°':'--', xU=day.temp_max!=null?day.temp_max+'°':'--';
-    const mS=day.temp_min_suburban!=null?`${day.temp_min_suburban}°*`:'--*', xS=day.temp_max_suburban!=null?`${day.temp_max_suburban}°*`:'--*';
-    const dateStr=day.date?day.date.split('-').slice(1).reverse().join('/'):'';
-    const half=(p,lbl)=>{if(!p)return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><div style="color:#ccc">--</div></div>`;
-        const icon=p.weather_icon_code||'default';
-        return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><img class="ext-icon-img" src="images/${icon}.png" onerror="this.src='images/default.png'">${p.probability_of_precipitation&&p.probability_of_precipitation!=='0 %'?`<div class="ext-icon-pop">💧 ${p.probability_of_precipitation} prob.</div>`:''} ${p.wind_gusts?`<div class="ext-icon-gust">💨 Ráf. ${p.wind_gusts} km/h</div>`:''}</div>`;};
-    const d1=skyDesc(p1||{}), d2=skyDesc(p2||{});
-    let desc=d1; if(d2&&d2!=='--'&&d2!==d1) desc+=` → ${d2}`;
-    const wt=p1?windText(p1):'';
-    const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
-    const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,30):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,30):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
+    const p1 = day.period_forecasts?.[0];
+    const p2 = day.period_forecasts?.[1];
+    const mU = day.temp_min  != null ? day.temp_min  + '°' : '--';
+    const xU = day.temp_max  != null ? day.temp_max  + '°' : '--';
+    const mS = day.temp_min_suburban != null ? `${day.temp_min_suburban}°*` : '--*';
+    const xS = day.temp_max_suburban != null ? `${day.temp_max_suburban}°*` : '--*';
+    const dateStr = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
+    const half = (p, lbl) => {
+        if (!p) return `<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><div style="color:#ccc">--</div></div>`;
+        const icon = p.weather_icon_code || 'default';
+        return `<div class="ext-icon-half">
+            <div class="ext-icon-lbl">${lbl}</div>
+            <img class="ext-icon-img" src="images/${icon}.png" onerror="this.src='images/default.png'">
+            ${p.probability_of_precipitation && p.probability_of_precipitation !== '0 %' && p.probability_of_precipitation !== '0%' ? `<div class="ext-icon-pop">💧 ${p.probability_of_precipitation} prob.</div>` : ''}
+            ${p.wind_gusts ? `<div class="ext-icon-gust">💨 Ráf. ${p.wind_gusts} km/h</div>` : ''}
+        </div>`;
+    };
+    const d1 = skyDesc(p1 || {});
+    const d2 = skyDesc(p2 || {});
+    let desc = d1;
+    if (d2 && d2 !== '--' && d2 !== d1) desc += ` → ${d2}`;
+    const wt   = p1 ? windText(p1) : '';
+    const wd1  = p1?.wind_direction;
+    const wd2  = p2?.wind_direction;
+    const windHtml = wt && wt !== '--' ? `<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1 ? windArrowDark(wd1,30) : ''} ${wd2 && wd2 !== wd1 ? windArrowDark(wd2,30) : ''}</div><div class="ext-wind-txt">${wt}</div></div>` : '';
     return `<div class="ext-card ${cardClass}">
-        <div class="ext-card-hdr"><div class="ext-card-name">${day.day_name?.toUpperCase()||'--'}</div><div class="ext-card-date">${dateStr}</div></div>
+        <div class="ext-card-hdr">
+            <div class="ext-card-name">${(day.day_name || '--').toUpperCase()}</div>
+            <div class="ext-card-date">${dateStr}</div>
+        </div>
         <div class="ext-card-body">
-            <div class="ext-temps-row"><div class="ext-temp-item">${thermoSVG('blue')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÍN</div><div class="ext-temp-urb">${mU}</div><div class="ext-temp-sub">${mS}</div></div></div>
-            <div class="ext-temp-item">${thermoSVG('red')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÁX</div><div class="ext-temp-urb">${xU}</div><div class="ext-temp-sub">${xS}</div></div></div></div>
+            <div class="ext-temps-row">
+                <div class="ext-temp-item">${thermoSVG('blue')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÍN</div><div class="ext-temp-urb">${mU}</div><div class="ext-temp-sub">${mS}</div></div></div>
+                <div class="ext-temp-item">${thermoSVG('red')}<div class="ext-temp-vals"><div class="ext-temp-lbl">MÁX</div><div class="ext-temp-urb">${xU}</div><div class="ext-temp-sub">${xS}</div></div></div>
+            </div>
             <div class="ext-icons-row">${half(p1,'MADRUGADA / MAÑANA')}${half(p2,'TARDE / NOCHE')}</div>
-            ${desc!=='--'?`<div class="ext-desc-box">${desc}</div>`:''}
+            ${desc && desc !== '--' ? `<div class="ext-desc-box">${desc}</div>` : ''}
             ${windHtml}
         </div>
     </div>`;
 }
 
-// ─── NUEVO: LEER DE GOOGLE SHEETS ─────────────────────────────────────────────
+// ─── PRONÓSTICO DESDE GOOGLE SHEETS ─────────────────────────────────────────
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzuFX0-E_nYLGB974svNE7txN5sb6uHyu7gFGVvsIu1bu48ox6UwkhlKWJq9qqsUgjF/exec";
+
 async function fetchForecast(city) {
     const container = document.getElementById('forecast-container');
-    container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
-    
-    try {
-        // Acá ponemos la misma URL mágica que genera los datos
-        const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzuFX0-E_nYLGB974svNE7txN5sb6uHyu7gFGVvsIu1bu48ox6UwkhlKWJq9qqsUgjF/exec";
-        
-        const r = await fetch(`${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`);
-        if (!r.ok) throw new Error("Error HTTP");
-        const row = await r.json();
+    container.innerHTML = '<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico...</div>';
 
-        // Si la hoja no existe o está vacía
-        if (row.error) {
-            container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
+    try {
+        const r = await fetch(`${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+        let raw = await r.json();
+        console.log('[Pronóstico] Respuesta cruda:', raw);
+
+        // ── Normalizar la respuesta: soporta múltiples formatos del GAS ──────
+        // Formato 1: array plano [val0, val1, ...]
+        // Formato 2: { data: [...] }
+        // Formato 3: { values: [[...]] }  (Sheets REST-style)
+        // Formato 4: { error: "..." }
+        let row;
+        if (Array.isArray(raw)) {
+            row = raw;
+        } else if (raw && typeof raw === 'object') {
+            if (raw.error) {
+                container.innerHTML = `<div class="fcast-empty">Sin pronóstico vigente para <strong>${city}</strong>.</div>`;
+                return;
+            }
+            if (Array.isArray(raw.data))            row = raw.data;
+            else if (Array.isArray(raw.values))     row = raw.values[0] ?? raw.values; // 2D → primera fila
+            else                                    row = Object.values(raw);
+        } else {
+            throw new Error('Formato de respuesta inesperado');
+        }
+
+        // Validación mínima
+        if (!Array.isArray(row) || row.length < 25) {
+            console.warn('[Pronóstico] Datos insuficientes:', row);
+            container.innerHTML = `<div class="fcast-empty">Datos incompletos para <strong>${city}</strong>. Verificá la hoja de cálculo.</div>`;
             return;
         }
 
-        // Calculamos los nombres de los días y fechas en base a la fecha de emisión del admin
+        // ── Accessor null-safe (evita que 0 se trate como vacío) ─────────────
+        const v = (i) => {
+            const val = row[i];
+            return (val !== null && val !== undefined && val !== '') ? val : null;
+        };
+
+        // ── Fecha base: parsear como fecha LOCAL para evitar desfase UTC ─────
         let baseDate = new Date();
-        if (row[0]) {
-            baseDate = new Date(row[0]);
-            // Ajustar zona horaria si viene en formato texto corto para no saltar de día
-            if (typeof row[0] === 'string' && !row[0].includes('T')) {
-                baseDate.setMinutes(baseDate.getMinutes() + baseDate.getTimezoneOffset());
+        const rawDate = v(0);
+        if (rawDate) {
+            const s = String(rawDate).trim();
+            if (s.includes('T') || (s.includes('-') && s.length > 10)) {
+                // ISO con hora: "2026-06-21T03:00:00.000Z"
+                baseDate = new Date(s);
+            } else if (s.includes('-')) {
+                // Solo fecha "YYYY-MM-DD" → parsear como local para no saltar de día
+                const [y, m, d] = s.split('-').map(Number);
+                baseDate = new Date(y, m - 1, d);
+            } else if (s.includes('/')) {
+                // Formato "DD/MM/YYYY"
+                const parts = s.split('/').map(Number);
+                baseDate = parts[0] > 31
+                    ? new Date(parts[0], parts[1] - 1, parts[2])   // YYYY/MM/DD
+                    : new Date(parts[2], parts[1] - 1, parts[0]);   // DD/MM/YYYY
             }
         }
-        const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-        const getDayName = (offset) => {
-            const t = new Date(baseDate); t.setDate(t.getDate() + offset);
-            return dayNames[t.getDay()];
-        };
+
+        const DAY_NAMES = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+        const getDayName = (offset) => { const t = new Date(baseDate); t.setDate(t.getDate() + offset); return DAY_NAMES[t.getDay()]; };
         const getDateStr = (offset) => {
-            const t = new Date(baseDate); t.setDate(t.getDate() + offset);
-            return `20${String(t.getFullYear()).slice(-2)}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+            const t  = new Date(baseDate); t.setDate(t.getDate() + offset);
+            const mm = String(t.getMonth() + 1).padStart(2, '0');
+            const dd = String(t.getDate()).padStart(2, '0');
+            return `${t.getFullYear()}-${mm}-${dd}`;
         };
 
-        // Función clave que rearma los tramos horarios que aplanamos en el Excel
+        // ── Mapear un período desde columnas del array ────────────────────────
+        // isExtended=false: sky | pop | temp | wi | wd | wg  (6 columnas)
+        // isExtended=true:  sky | pop | wi | wd | wg         (5 columnas, sin temp por período)
         const mapPeriod = (idx, periodName, isExtended) => {
-            const sky = row[idx] || "";
-            const pop = row[idx+1] || "";
-            const temp = isExtended ? null : (row[idx+2] || null);
-            const offset = isExtended ? 2 : 3;
-            const wi = row[idx+offset] || null;
-            const wd = row[idx+offset+1] || null;
-            const wg = row[idx+offset+2] || null;
+            const sky  = String(v(idx) || '').trim().toLowerCase();
+            const pop  = v(idx + 1);
+            const temp = isExtended ? null : v(idx + 2);
+            const off  = isExtended ? 2 : 3;
+            const wi   = v(idx + off);
+            const wd   = v(idx + off + 1);
+            const wg   = v(idx + off + 2);
 
-            const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
-            const isRain = rainTypes.includes(sky);
+            const isRain = RAIN_TYPES.includes(sky);
 
-            // Recrear el ícono correspondiente
+            // Determinar ícono
             let iconCode = 'default';
-            if (sky && iconMap[sky.toLowerCase()]) {
-                 const isNight = periodName.includes('noche') || periodName.includes('madrugada');
-                 iconCode = isNight ? iconMap[sky.toLowerCase()].noche.replace('.png','') : iconMap[sky.toLowerCase()].dia.replace('.png','');
+            if (sky && iconMap[sky]) {
+                const isNight = periodName === 'noche' || periodName === 'madrugada';
+                iconCode = (isNight ? iconMap[sky].noche : iconMap[sky].dia).replace('.png', '');
             }
 
             return {
-                period: periodName,
-                precipitation_description: isRain ? sky : null,
-                probability_of_precipitation: pop || null,
-                sky_condition: isRain ? null : (sky || null),
-                temperature: temp !== "" ? temp : null,
-                wind_intensity: wi || null,
-                wind_direction: wd || null,
-                wind_gusts: wg !== "" ? wg : null,
-                weather_icon_code: iconCode
+                period:                        periodName,
+                sky_condition:                 isRain ? null : (sky || null),
+                precipitation_description:     isRain ? sky  : null,
+                probability_of_precipitation:  pop  != null ? String(pop)  : null,
+                temperature:                   temp != null ? temp : null,
+                wind_intensity:                wi   != null ? String(wi)   : null,
+                wind_direction:                wd   != null ? String(wd)   : null,
+                wind_gusts:                    wg   != null ? String(wg)   : null,
+                weather_icon_code:             iconCode
             };
         };
 
-        // Objeto gigante reconstruido desde las columnas de Google Sheets
+        // ── Reconstruir objeto de pronóstico ──────────────────────────────────
+        //  Índices según estructura del admin (ver comentarios):
+        //  [0]=fecha  [1]=hora emisión  [2]=ciudad (ignorado)
+        //  DÍA 1: [3..6]=temps, [7..24]=3 períodos x 6 cols
+        //  DÍA 2: [25..28]=temps, [29..52]=4 períodos x 6 cols
+        //  DÍA 3: [53..56]=temps, [57]=desc (ignorado), [58..67]=2 períodos x 5 cols
+        //  DÍA 4: [68..71]=temps, [72]=desc (ignorado), [73..82]=2 períodos x 5 cols
         const cityData = {
-            city: city,
-            emission_time: row[1],
+            city,
             daily_forecasts: [
                 {
                     date: getDateStr(0), day_name: getDayName(0),
-                    temp_min: row[3], temp_max: row[5],
-                    temp_min_suburban: row[4], temp_max_suburban: row[6],
-                    period_forecasts: [ mapPeriod(7, 'mañana', false), mapPeriod(13, 'tarde', false), mapPeriod(19, 'noche', false) ]
+                    temp_min: v(3), temp_min_suburban: v(4), temp_max: v(5), temp_max_suburban: v(6),
+                    period_forecasts: [
+                        mapPeriod(7,  'mañana', false),
+                        mapPeriod(13, 'tarde',  false),
+                        mapPeriod(19, 'noche',  false)
+                    ]
                 },
                 {
                     date: getDateStr(1), day_name: getDayName(1),
-                    temp_min: row[25], temp_max: row[27],
-                    temp_min_suburban: row[26], temp_max_suburban: row[28],
-                    period_forecasts: [ mapPeriod(29, 'madrugada', false), mapPeriod(35, 'mañana', false), mapPeriod(41, 'tarde', false), mapPeriod(47, 'noche', false) ]
+                    temp_min: v(25), temp_min_suburban: v(26), temp_max: v(27), temp_max_suburban: v(28),
+                    period_forecasts: [
+                        mapPeriod(29, 'madrugada', false),
+                        mapPeriod(35, 'mañana',    false),
+                        mapPeriod(41, 'tarde',     false),
+                        mapPeriod(47, 'noche',     false)
+                    ]
                 },
                 {
                     date: getDateStr(2), day_name: getDayName(2),
-                    temp_min: row[53], temp_max: row[55],
-                    temp_min_suburban: row[54], temp_max_suburban: row[56],
-                    period_forecasts: [ mapPeriod(58, 'mañana', true), mapPeriod(63, 'tarde', true) ]
+                    temp_min: v(53), temp_min_suburban: v(54), temp_max: v(55), temp_max_suburban: v(56),
+                    period_forecasts: [
+                        mapPeriod(58, 'mañana', true),
+                        mapPeriod(63, 'tarde',  true)
+                    ]
                 },
                 {
                     date: getDateStr(3), day_name: getDayName(3),
-                    temp_min: row[68], temp_max: row[70],
-                    temp_min_suburban: row[69], temp_max_suburban: row[71],
-                    period_forecasts: [ mapPeriod(73, 'mañana', true), mapPeriod(78, 'tarde', true) ]
+                    temp_min: v(68), temp_min_suburban: v(69), temp_max: v(70), temp_max_suburban: v(71),
+                    period_forecasts: [
+                        mapPeriod(73, 'mañana', true),
+                        mapPeriod(78, 'tarde',  true)
+                    ]
                 }
             ]
         };
 
-        // --- RENDERIZADO VISUAL --- (Mismo código que usábamos con la API)
-        
-        // Píldora de emisión
-        if (cityData.emission_time) {
-            let etime = String(cityData.emission_time);
+        // ── Hora de emisión ───────────────────────────────────────────────────
+        const rawEmission = v(1);
+        if (rawEmission) {
+            let etime = String(rawEmission).trim();
             if (etime.includes('T')) {
                 const d = new Date(etime);
-                etime = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
-            } else if (etime.length >= 5) {
-                etime = etime.substring(0,5);
+                etime = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            } else {
+                etime = etime.substring(0, 5);   // "HH:MM:SS" → "HH:MM"
             }
             document.getElementById('cd-emission-time').innerText = etime + ' hs';
             document.getElementById('cd-emission').classList.remove('hidden');
@@ -976,32 +998,49 @@ async function fetchForecast(city) {
             document.getElementById('cd-emission').classList.add('hidden');
         }
 
-        const f = cityData.daily_forecasts;
-        let html = '';
-        
-        // Días 1 y 2
-        f.slice(0,2).forEach((day,idx)=>{
-            const label = idx===0 ? 'HOY' : 'MAÑANA';
+        // ── Renderizado ───────────────────────────────────────────────────────
+        const f   = cityData.daily_forecasts;
+        let html  = '';
+
+        // Días 1 y 2 (con períodos detallados)
+        f.slice(0, 2).forEach((day, idx) => {
+            const label   = idx === 0 ? 'HOY' : 'MAÑANA';
             const dateStr = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
             const periods = day.period_forecasts || [];
-            html += `<div class="fcast-block"><div class="fcast-day-hdr d${idx}"><div><div class="fcast-day-name">${label} — ${day.day_name?.toUpperCase()||''}</div><div class="fcast-day-date">${dateStr}</div></div>${tempBlock(day)}</div>${periods.length>0?`<div class="fcast-periods-wrap cols${periods.length===4?4:3}">${periods.map(p=>buildPeriodCol(p)).join('')}</div>`:'<div class="fcast-empty" style="border-radius:0 0 16px 16px;">Sin datos horarios.</div>'}</div>`;
+            const cols    = periods.length === 4 ? 4 : 3;
+            html += `<div class="fcast-block">
+                <div class="fcast-day-hdr d${idx}">
+                    <div>
+                        <div class="fcast-day-name">${label} — ${(day.day_name || '').toUpperCase()}</div>
+                        <div class="fcast-day-date">${dateStr}</div>
+                    </div>
+                    ${tempBlock(day)}
+                </div>
+                ${periods.length > 0
+                    ? `<div class="fcast-periods-wrap cols${cols}">${periods.map(p => buildPeriodCol(p)).join('')}</div>`
+                    : '<div class="fcast-empty" style="border-radius:0 0 16px 16px;">Sin datos horarios.</div>'
+                }
+            </div>`;
         });
-        
-        // Extendido (Días 3 y 4)
-        const ext = f.slice(2,4);
-        if(ext.length>0){
+
+        // Días 3 y 4 (extendido)
+        const ext = f.slice(2, 4);
+        if (ext.length > 0) {
             html += `<div class="fcast-ext-grid">`;
-            ext.forEach((day,i)=>{ html+=buildExtCard(day,i===0?'celeste':'oscuro'); });
-            html += `</div>`;
+            ext.forEach((day, i) => { html += buildExtCard(day, i === 0 ? 'celeste' : 'oscuro'); });
+            html += '</div>';
         }
-        
+
         html += `<div style="text-align:center;font-size:0.72rem;font-weight:700;color:var(--text-muted);padding:6px 0 2px;">* TEMPERATURA EN ZONA SUBURBANA</div>`;
-        
         container.innerHTML = html;
 
-    } catch(err) {
-        console.error(err);
-        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error de red al conectar con Google Sheets.</div>`;
+    } catch (err) {
+        console.error('[Pronóstico] Error:', err);
+        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;border:1px solid #fecaca;">
+            ⚠️ No se pudo cargar el pronóstico para <strong>${city}</strong>.<br>
+            <small style="font-weight:500;color:var(--text-muted);">${err.message}</small><br>
+            <small style="font-weight:500;color:var(--text-muted);">Revisá la consola (F12) para más detalles.</small>
+        </div>`;
     }
 }
 </script>
