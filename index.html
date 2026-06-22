@@ -654,9 +654,9 @@ async function fetchTS() {
 
         const fmt = (v, d) => isNaN(v) ? '--' : v.toFixed(d);
 
-        setText('m-temp',  fmt(temp,   1));
-        setText('m-hum',   fmt(hum,    0));
-        setText('m-pres',  fmt(pres,   1));
+        setText('m-temp',  fmt(temp,  1));
+        setText('m-hum',   fmt(hum,   0));
+        setText('m-pres',  fmt(pres,  1));
         setText('m-wind',  fmt(wspeed, 1));
 
         const cardDir = degreesToCardinal(wdir);
@@ -856,19 +856,17 @@ function buildExtCard(day, cardClass) {
     </div>`;
 }
 
-
-// ─── CONEXIÓN DIRECTA (Sin proxies, ya que ahora el script permite CORS) ────
-// ─── CONEXIÓN DIRECTA Y EFICIENTE ───────────────────────────────────────────
+// ─── CONEXIÓN DIRECTA ───────────────────────────────────────────
 async function fetchForecastData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Error al conectar con la base de datos');
+            throw new Error(`Error HTTP de Google: ${response.status}`);
         }
         return await response.json();
     } catch (err) {
-        console.error('Error de conexión:', err);
-        throw err; // El error se maneja en fetchForecast
+        console.error('Error al solicitar los datos:', err);
+        return null; // Devuelve null para que la aplicación no se rompa y lo maneje con estilo
     }
 }
 
@@ -878,14 +876,20 @@ async function fetchForecast(city) {
     container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
     
     try {
-        // AQUÍ REEMPLAZAMOS CON TU NUEVO ID
+        // AQUÍ ESTÁ TU ID DEFINITIVO
         const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
-        // Llamamos a la nueva función que incluye el puente Proxy
+        // Llamamos a la función segura
         const row = await fetchForecastData(url);
 
-        // Si la hoja no existe o está vacía
+        // Si la conexión falló o Google no devolvió datos correctos
+        if (!row) {
+            container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error de red al conectar con Google Sheets. Verifica los permisos CORS.</div>`;
+            return;
+        }
+
+        // Si la hoja no existe o está vacía (Google responde {"error":"Sin datos"})
         if (row.error) {
             container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
             return;
@@ -1016,8 +1020,8 @@ async function fetchForecast(city) {
         container.innerHTML = html;
 
     } catch(err) {
-        console.error(err);
-        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error de red al conectar con Google Sheets.</div>`;
+        console.error("Error crítico de compilación:", err);
+        container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error inesperado procesando los datos.</div>`;
     }
 }
 </script>
