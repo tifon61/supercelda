@@ -856,19 +856,20 @@ function buildExtCard(day, cardClass) {
     </div>`;
 }
 
-// ─── REINTENTO PARA EVITAR EL "FAILED TO FETCH" ───────────────────────────────
-async function fetchWithRetry(url, retries = 5, backoff = 1000) {
+// ─── SOLUCIÓN ANTI-CORS (REEMPLAZA AL REINTENTO ANTERIOR) ─────────────────────
+async function fetchForecastData(url) {
     try {
+        // 1. Intento de conexión directa
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error en la respuesta de la red');
         return await response.json();
     } catch (err) {
-        if (retries > 0) {
-            console.warn(`Reintentando conexión... intentos restantes: ${retries}`);
-            await new Promise(resolve => setTimeout(resolve, backoff));
-            return fetchWithRetry(url, retries - 1, backoff * 2);
-        }
-        throw err;
+        console.warn('Google bloqueó por CORS. Cruzando por Proxy...');
+        // 2. Si Google bloquea por CORS, usamos un proxy como salvavidas
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const proxyResponse = await fetch(proxyUrl);
+        if (!proxyResponse.ok) throw new Error('Error en el proxy');
+        return await proxyResponse.json();
     }
 }
 
@@ -881,8 +882,8 @@ async function fetchForecast(city) {
         const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzuFX0-E_nYLGB974svNE7txN5sb6uHyu7gFGVvsIu1bu48ox6UwkhlKWJq9qqsUgjF/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
-        // Usamos la función de reintento para evitar el error temporal de Google
-        const row = await fetchWithRetry(url);
+        // Llamamos a la nueva función que incluye el puente Proxy
+        const row = await fetchForecastData(url);
 
         // Si la hoja no existe o está vacía
         if (row.error) {
