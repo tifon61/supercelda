@@ -879,7 +879,8 @@ async function fetchForecast(city) {
     container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
     
     try {
-        const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzuFX0-E_nYLGB974svNE7txN5sb6uHyu7gFGVvsIu1bu48ox6UwkhlKWJq9qqsUgjF/exec";
+        // AQUÍ REEMPLAZAMOS CON TU NUEVO ID
+        const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
         // Llamamos a la nueva función que incluye el puente Proxy
