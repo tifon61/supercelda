@@ -856,18 +856,41 @@ function buildExtCard(day, cardClass) {
     </div>`;
 }
 
-// ─── CONEXIÓN DIRECTA ───────────────────────────────────────────
-async function fetchForecastData(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Error HTTP de Google: ${response.status}`);
-        }
-        return await response.json();
-    } catch (err) {
-        console.error('Error al solicitar los datos:', err);
-        return null; // Devuelve null para que la aplicación no se rompa y lo maneje con estilo
-    }
+// ─── CONEXIÓN A GOOGLE SHEETS MEDIANTE JSONP (INFALIBLE PARA CORS) ──────────
+function fetchForecastDataJSONP(url) {
+    return new Promise((resolve, reject) => {
+        // Generamos un nombre de función único
+        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        
+        // Configuramos la función global que recibirá los datos
+        window[callbackName] = function(data) {
+            delete window[callbackName]; // Limpieza
+            document.body.removeChild(script); // Limpieza
+            resolve(data);
+        };
+
+        // Creamos el elemento script
+        const script = document.createElement('script');
+        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+        
+        // Manejo de errores de carga (por ejemplo, timeout)
+        script.onerror = function() {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            reject(new Error("Falló la carga del script JSONP."));
+        };
+
+        // Inyectamos el script para iniciar la descarga
+        document.body.appendChild(script);
+        
+        // Timeout de seguridad (10 segundos)
+        setTimeout(() => {
+            if (window[callbackName]) {
+                delete window[callbackName];
+                reject(new Error("Timeout conectando a Google Sheets."));
+            }
+        }, 10000);
+    });
 }
 
 // ─── LEER DE GOOGLE SHEETS ───────────────────────────────────────────────────
@@ -876,16 +899,16 @@ async function fetchForecast(city) {
     container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
     
     try {
-        // AQUÍ ESTÁ TU ID DEFINITIVO
+        // TU ID DEFINITIVO DE GOOGLE APPS SCRIPT
         const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
-        // Llamamos a la función segura
-        const row = await fetchForecastData(url);
+        // Llamamos a la función JSONP (bye bye CORS!)
+        const row = await fetchForecastDataJSONP(url);
 
-        // Si la conexión falló o Google no devolvió datos correctos
+        // Si la conexión falló (timeout o error de red)
         if (!row) {
-            container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">Error de red al conectar con Google Sheets. Verifica los permisos CORS.</div>`;
+            container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">No se pudo conectar con el servidor de pronósticos.</div>`;
             return;
         }
 
