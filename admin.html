@@ -891,8 +891,9 @@
             // D=MinUrb, F=MaxUrb, H=Cielo1, I=Pop1, J=Temp1, K=Int1, L=Dir1
             await fetch(GOOGLE_APP_URL, {
     method: 'POST',
+    mode: 'no-cors',            
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain'
     },
     body: JSON.stringify(forecastPayload)
 });
