@@ -889,23 +889,19 @@
 
             // Crea el array simple que coincide con las columnas de la hoja:
             // D=MinUrb, F=MaxUrb, H=Cielo1, I=Pop1, J=Temp1, K=Int1, L=Dir1
-            const valoresParaFila = [
-                document.getElementById('in-h-min-urb').value,
-                document.getElementById('in-h-max-urb').value,
-                document.getElementById('h-sky-select-1').value,
-                document.getElementById('h-pop-1').value,
-                document.getElementById('h-temp-1').value,
-                document.getElementById('h-v-i1').value,
-                document.getElementById('h-v-d1').value
-            ];
+            const response = await fetch(GOOGLE_APP_URL, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(forecastPayload)
+});
 
-            await fetch(GOOGLE_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ values: valoresParaFila })
-            });
+const result = await response.json();
 
+console.log(result);
+
+showToast("Pronóstico guardado");
             showToast("¡Pronóstico guardado en la planilla con éxito!");
 
         } catch (e) {
