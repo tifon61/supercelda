@@ -889,7 +889,7 @@
 
             // Crea el array simple que coincide con las columnas de la hoja:
             // D=MinUrb, F=MaxUrb, H=Cielo1, I=Pop1, J=Temp1, K=Int1, L=Dir1
-            const response = await fetch(GOOGLE_APP_URL, {
+            await fetch(GOOGLE_APP_URL, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
