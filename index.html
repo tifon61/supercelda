@@ -706,9 +706,9 @@ async function fetchTS() {
             return `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}`;
         });
 
-        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])   || null), '#ef4444', 'rgba(239,68,68,0.12)',    'Temperatura (°C)');
-        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])    || null), '#0ea5e9', 'rgba(14,165,233,0.12)',   'Humedad (%)');
-        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])   || null), '#8b5cf6', 'rgba(139,92,246,0.12)',   'Presión (hPa)');
+        mkChart('chartTemp',     labels, feeds.map(f => parseFloat(f[TS_F.temp])  || null), '#ef4444', 'rgba(239,68,68,0.12)',    'Temperatura (°C)');
+        mkChart('chartHum',      labels, feeds.map(f => parseFloat(f[TS_F.hum])   || null), '#0ea5e9', 'rgba(14,165,233,0.12)',   'Humedad (%)');
+        mkChart('chartPres',     labels, feeds.map(f => parseFloat(f[TS_F.pres])  || null), '#8b5cf6', 'rgba(139,92,246,0.12)',   'Presión (hPa)');
         mkChart('chartWind',     labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.12)',   'Viento (km/h)');
         mkChart('chartWindMini', labels, feeds.map(f => parseFloat(f[TS_F.wspeed]) || null), '#10b981', 'rgba(16,185,129,0.15)',   'Viento', true);
 
@@ -757,22 +757,7 @@ function loadIgEmbed(facade) {
     document.body.appendChild(iframe);
 }
 
-// ─── MAPA DE ICONOS (IGUAL QUE EN EL ADMIN) ──────────────────────────────────
-const iconMap = {
-    "despejado": { dia: "soleado.png", noche: "Despejado_noche.png" },
-    "ligeramente nublado": { dia: "Ligeramente_nublado_dia.png", noche: "Ligeramente_nublado_noche.png" },
-    "algo nublado": { dia: "Algo_nublado_dia.png", noche: "Algo_nublado_noche.png" },
-    "parcialmente nublado": { dia: "Parcialmente_nublado_dia.png", noche: "Parcialmente_nublado_noche.png" },
-    "cubierto": { dia: "Cubierto_dia.png", noche: "Cubierto_noche.png" },
-    "neblinas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
-    "nieblas": { dia: "Nieblas_dia.png", noche: "Nieblas_noche.png" },
-    "lluvias aisladas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
-    "lloviznas": { dia: "Lluvia_dia.png", noche: "Lluvia_noche.png" },
-    "lluvias y tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" },
-    "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
-};
-
-function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+// ─── FUNCIONES UI DE PRONÓSTICO ─────────────────────────────────────────────
 function thermoSVG(color) {
     const bulb = color==='blue' ? '#00bcd4' : '#ef4444';
     const fy   = color==='blue' ? 25 : 15;
@@ -790,19 +775,7 @@ function popBadge(pop) {
     return `<div class="pc-pop ${c}">💧 ${pop} prob.</div>`;
 }
 function gustBadge(g) { return g ? `<div class="pc-gust">💨 Ráf. ${g} km/h</div>` : ''; }
-function windText(p) {
-    if (!p.wind_intensity && !p.wind_direction) return '--';
-    let t = p.wind_intensity && p.wind_direction ? `${cap(p.wind_intensity)} del ${p.wind_direction}` : cap(p.wind_intensity || p.wind_direction);
-    if (p.wind_gusts) t += ` · ráf. ${p.wind_gusts} km/h`;
-    return t;
-}
-function skyDesc(p) {
-    const parts = [];
-    if (p.probability_of_precipitation && p.probability_of_precipitation!=='0 %') parts.push(p.probability_of_precipitation+' prob.');
-    if (p.precipitation_description) parts.push(p.precipitation_description);
-    else if (p.sky_condition) parts.push(p.sky_condition);
-    return parts.length ? cap(parts.join(' ')) : '--';
-}
+
 function tempBlock(day) {
     const mU = day.temp_min!=null ? day.temp_min+'°' : '--';
     const xU = day.temp_max!=null ? day.temp_max+'°' : '--';
@@ -813,11 +786,16 @@ function tempBlock(day) {
         <div class="fcast-temp-col">${thermoSVG('red')}<div class="fcast-temp-vals"><div class="fcast-temp-lbl">MÁX</div><div class="fcast-temp-urb">${xU}</div><div class="fcast-temp-sub">${xS}</div></div></div>
     </div>`;
 }
+
 function buildPeriodCol(p) {
     const icon=p.weather_icon_code||'default', label=PERIOD_SHORT[p.period]||p.period.toUpperCase();
     const isNight=p.period==='noche'||p.period==='madrugada';
     const sky=p.sky_condition||p.precipitation_description||'';
     const ang=WIND_ANGLES[p.wind_direction?.toLowerCase()]??0;
+    
+    // Función auxiliar de capitalización que faltaba
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+
     return `<div class="period-col">
         <div class="pc-period-lbl">${label}</div>
         <img class="pc-icon" src="images/${icon}.png" onerror="this.src='images/default.png'">
@@ -831,6 +809,7 @@ function buildPeriodCol(p) {
         <div class="pc-sky">${sky?cap(sky):''}</div>
     </div>`;
 }
+
 function buildExtCard(day, cardClass) {
     const p1=day.period_forecasts?.[0], p2=day.period_forecasts?.[1];
     const mU=day.temp_min!=null?day.temp_min+'°':'--', xU=day.temp_max!=null?day.temp_max+'°':'--';
@@ -839,11 +818,29 @@ function buildExtCard(day, cardClass) {
     const half=(p,lbl)=>{if(!p)return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><div style="color:#ccc">--</div></div>`;
         const icon=p.weather_icon_code||'default';
         return`<div class="ext-icon-half"><div class="ext-icon-lbl">${lbl}</div><img class="ext-icon-img" src="images/${icon}.png" onerror="this.src='images/default.png'">${p.probability_of_precipitation&&p.probability_of_precipitation!=='0 %'?`<div class="ext-icon-pop">💧 ${p.probability_of_precipitation} prob.</div>`:''} ${p.wind_gusts?`<div class="ext-icon-gust">💨 Ráf. ${p.wind_gusts} km/h</div>`:''}</div>`;};
+    
+    // Funciones auxiliares internas
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    const skyDesc = p => {
+        const parts = [];
+        if (p.probability_of_precipitation && p.probability_of_precipitation!=='0 %') parts.push(p.probability_of_precipitation+' prob.');
+        if (p.precipitation_description) parts.push(p.precipitation_description);
+        else if (p.sky_condition) parts.push(p.sky_condition);
+        return parts.length ? cap(parts.join(' ')) : '--';
+    };
+    const windText = p => {
+        if (!p.wind_intensity && !p.wind_direction) return '--';
+        let t = p.wind_intensity && p.wind_direction ? `${cap(p.wind_intensity)} del ${p.wind_direction}` : cap(p.wind_intensity || p.wind_direction);
+        if (p.wind_gusts) t += ` · ráf. ${p.wind_gusts} km/h`;
+        return t;
+    };
+
     const d1=skyDesc(p1||{}), d2=skyDesc(p2||{});
     let desc=d1; if(d2&&d2!=='--'&&d2!==d1) desc+=` → ${d2}`;
     const wt=p1?windText(p1):'';
     const wd1=p1?.wind_direction, wd2=p2?.wind_direction;
     const windHtml=wt?`<div class="ext-wind-box"><div class="ext-wind-arrows">${wd1?windArrowDark(wd1,30):''} ${wd2&&wd2!==wd1?windArrowDark(wd2,30):''}</div><div class="ext-wind-txt">${wt}</div></div>`:'';
+    
     return `<div class="ext-card ${cardClass}">
         <div class="ext-card-hdr"><div class="ext-card-name">${day.day_name?.toUpperCase()||'--'}</div><div class="ext-card-date">${dateStr}</div></div>
         <div class="ext-card-body">
@@ -859,31 +856,25 @@ function buildExtCard(day, cardClass) {
 // ─── CONEXIÓN A GOOGLE SHEETS MEDIANTE JSONP (INFALIBLE PARA CORS) ──────────
 function fetchForecastDataJSONP(url) {
     return new Promise((resolve, reject) => {
-        // Generamos un nombre de función único
         const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
         
-        // Configuramos la función global que recibirá los datos
         window[callbackName] = function(data) {
-            delete window[callbackName]; // Limpieza
-            document.body.removeChild(script); // Limpieza
+            delete window[callbackName];
+            document.body.removeChild(script);
             resolve(data);
         };
 
-        // Creamos el elemento script
         const script = document.createElement('script');
         script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
         
-        // Manejo de errores de carga (por ejemplo, timeout)
         script.onerror = function() {
             delete window[callbackName];
             document.body.removeChild(script);
             reject(new Error("Falló la carga del script JSONP."));
         };
 
-        // Inyectamos el script para iniciar la descarga
         document.body.appendChild(script);
         
-        // Timeout de seguridad (10 segundos)
         setTimeout(() => {
             if (window[callbackName]) {
                 delete window[callbackName];
@@ -899,108 +890,16 @@ async function fetchForecast(city) {
     container.innerHTML = `<div class="fcast-loading"><div class="spin">⏳</div><br>Cargando pronóstico desde la nube...</div>`;
     
     try {
-        // TU ID DEFINITIVO DE GOOGLE APPS SCRIPT
         const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec";
         const url = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}`;
         
-        // Llamamos a la función JSONP (bye bye CORS!)
-        const row = await fetchForecastDataJSONP(url);
+        // Obtenemos directamente el JSON completo
+        const cityData = await fetchForecastDataJSONP(url);
 
-        // Si la conexión falló (timeout o error de red)
-        if (!row) {
-            container.innerHTML = `<div class="fcast-empty" style="color:var(--danger);background:#fef2f2;">No se pudo conectar con el servidor de pronósticos.</div>`;
-            return;
-        }
-
-        // Si la hoja no existe o está vacía (Google responde {"error":"Sin datos"})
-        if (row.error) {
+        if (!cityData || cityData.error) {
             container.innerHTML = `<div class="fcast-empty">No hay pronóstico vigente para ${city}.</div>`;
             return;
         }
-
-        // Calculamos los nombres de los días y fechas en base a la fecha de emisión del admin
-        let baseDate = new Date();
-        if (row[0]) {
-            baseDate = new Date(row[0]);
-            // Ajustar zona horaria si viene en formato texto corto para no saltar de día
-            if (typeof row[0] === 'string' && !row[0].includes('T')) {
-                baseDate.setMinutes(baseDate.getMinutes() + baseDate.getTimezoneOffset());
-            }
-        }
-        const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-        const getDayName = (offset) => {
-            const t = new Date(baseDate); t.setDate(t.getDate() + offset);
-            return dayNames[t.getDay()];
-        };
-        const getDateStr = (offset) => {
-            const t = new Date(baseDate); t.setDate(t.getDate() + offset);
-            return `20${String(t.getFullYear()).slice(-2)}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-        };
-
-        // Función clave que rearma los tramos horarios que aplanamos en el Excel
-        const mapPeriod = (idx, periodName, isExtended) => {
-            const sky = row[idx] || "";
-            const pop = row[idx+1] || "";
-            const temp = isExtended ? null : (row[idx+2] || null);
-            const offset = isExtended ? 2 : 3;
-            const wi = row[idx+offset] || null;
-            const wd = row[idx+offset+1] || null;
-            const wg = row[idx+offset+2] || null;
-
-            const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
-            const isRain = rainTypes.includes(sky);
-
-            // Recrear el ícono correspondiente
-            let iconCode = 'default';
-            if (sky && iconMap[sky.toLowerCase()]) {
-                 const isNight = periodName.includes('noche') || periodName.includes('madrugada');
-                 iconCode = isNight ? iconMap[sky.toLowerCase()].noche.replace('.png','') : iconMap[sky.toLowerCase()].dia.replace('.png','');
-            }
-
-            return {
-                period: periodName,
-                precipitation_description: isRain ? sky : null,
-                probability_of_precipitation: pop || null,
-                sky_condition: isRain ? null : (sky || null),
-                temperature: temp !== "" ? temp : null,
-                wind_intensity: wi || null,
-                wind_direction: wd || null,
-                wind_gusts: wg !== "" ? wg : null,
-                weather_icon_code: iconCode
-            };
-        };
-
-        // Objeto gigante reconstruido desde las columnas de Google Sheets
-        const cityData = {
-            city: city,
-            emission_time: row[1],
-            daily_forecasts: [
-                {
-                    date: getDateStr(0), day_name: getDayName(0),
-                    temp_min: row[3], temp_max: row[5],
-                    temp_min_suburban: row[4], temp_max_suburban: row[6],
-                    period_forecasts: [ mapPeriod(7, 'mañana', false), mapPeriod(13, 'tarde', false), mapPeriod(19, 'noche', false) ]
-                },
-                {
-                    date: getDateStr(1), day_name: getDayName(1),
-                    temp_min: row[25], temp_max: row[27],
-                    temp_min_suburban: row[26], temp_max_suburban: row[28],
-                    period_forecasts: [ mapPeriod(29, 'madrugada', false), mapPeriod(35, 'mañana', false), mapPeriod(41, 'tarde', false), mapPeriod(47, 'noche', false) ]
-                },
-                {
-                    date: getDateStr(2), day_name: getDayName(2),
-                    temp_min: row[53], temp_max: row[55],
-                    temp_min_suburban: row[54], temp_max_suburban: row[56],
-                    period_forecasts: [ mapPeriod(58, 'mañana', true), mapPeriod(63, 'tarde', true) ]
-                },
-                {
-                    date: getDateStr(3), day_name: getDayName(3),
-                    temp_min: row[68], temp_max: row[70],
-                    temp_min_suburban: row[69], temp_max_suburban: row[71],
-                    period_forecasts: [ mapPeriod(73, 'mañana', true), mapPeriod(78, 'tarde', true) ]
-                }
-            ]
-        };
 
         // --- RENDERIZADO VISUAL ---
         
@@ -1020,21 +919,36 @@ async function fetchForecast(city) {
         }
 
         const f = cityData.daily_forecasts;
+        if (!f || f.length === 0) {
+             container.innerHTML = `<div class="fcast-empty">Datos incompletos para ${city}.</div>`;
+             return;
+        }
+
         let html = '';
         
         // Días 1 y 2
         f.slice(0,2).forEach((day,idx)=>{
-            const label = idx===0 ? 'HOY' : 'MAÑANA';
+            const label = idx === 0 ? 'HOY' : 'MAÑANA';
             const dateStr = day.date ? day.date.split('-').slice(1).reverse().join('/') : '';
             const periods = day.period_forecasts || [];
-            html += `<div class="fcast-block"><div class="fcast-day-hdr d${idx}"><div><div class="fcast-day-name">${label} — ${day.day_name?.toUpperCase()||''}</div><div class="fcast-day-date">${dateStr}</div></div>${tempBlock(day)}</div>${periods.length>0?`<div class="fcast-periods-wrap cols${periods.length===4?4:3}">${periods.map(p=>buildPeriodCol(p)).join('')}</div>`:'<div class="fcast-empty" style="border-radius:0 0 16px 16px;">Sin datos horarios.</div>'}</div>`;
+            
+            html += `<div class="fcast-block">
+                        <div class="fcast-day-hdr d${idx}">
+                            <div>
+                                <div class="fcast-day-name">${label} — ${day.day_name?.toUpperCase()||''}</div>
+                                <div class="fcast-day-date">${dateStr}</div>
+                            </div>
+                            ${tempBlock(day)}
+                        </div>
+                        ${periods.length > 0 ? `<div class="fcast-periods-wrap cols${periods.length===4?4:3}">${periods.map(p=>buildPeriodCol(p)).join('')}</div>` : '<div class="fcast-empty" style="border-radius:0 0 16px 16px;">Sin datos horarios.</div>'}
+                     </div>`;
         });
         
         // Extendido (Días 3 y 4)
         const ext = f.slice(2,4);
-        if(ext.length>0){
+        if(ext.length > 0){
             html += `<div class="fcast-ext-grid">`;
-            ext.forEach((day,i)=>{ html+=buildExtCard(day,i===0?'celeste':'oscuro'); });
+            ext.forEach((day,i)=>{ html+=buildExtCard(day, i===0?'celeste':'oscuro'); });
             html += `</div>`;
         }
         
