@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admiiin Meteorológico UNLP | IG Pro</title>
+    <title>Admin Meteorológico UNLP | IG Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -31,9 +31,11 @@
         .btn-pdf:hover { background: #ba4a00; }
         .btn-clear { background: #6c757d; padding: 8px; font-size: 0.8em; border-bottom: 3px solid #5a6268; margin-top: 5px; }
         .btn-clear:hover { background: #5a6268; }
+        
         #viewer { flex-grow: 1; padding: 20px; overflow: auto; background: #2d2d2d; display: flex; flex-direction: column; align-items: center; gap: 60px; }
         .placa-preview { width: 540px; }
         .placa-box { width: 1080px; height: 1350px; background: var(--bg-canvas); position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        
         .header-container { width: 100%; height: 130px; position: relative; margin-top: 15px; margin-bottom: 20px; flex-shrink: 0; }
         .header-capsule { border: 4px solid var(--unlp-blue); border-radius: 100px; display: flex; justify-content: space-between; align-items: center; padding: 8px 35px; background: white; height: 120px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
         .header-left-logos { display: flex; align-items: center; gap: 20px; z-index: 2; transform: translateY(8px); }
@@ -52,6 +54,7 @@
         .issuance-block { display: flex; align-items: center; gap: 12px; text-transform: uppercase; border-left: 2px solid rgba(0,63,107,0.25); padding-left: 25px; }
         .issuance-label { font-size: 15px; font-weight: 800; max-width: 150px; line-height: 1.1; }
         .issuance-time { font-size: 28px; font-weight: 900; }
+        
         .day-block { border-radius: 40px; margin-bottom: 6px; position: relative; width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); justify-content: space-between; padding-bottom: 0px; }
         .day-1 { background: var(--unlp-blue); padding-top: 35px; height: 630px; }
         .day-2 { background: var(--unlp-accent-blue); padding-top: 35px; margin-bottom: 0; height: 630px; }
@@ -63,6 +66,7 @@
         .exporting .periods-pill-4 { padding: 0px 10px 8px; }
         .periods-pill span, .periods-pill-4 span { display: inline-block; margin-top: 0; }
         .exporting .periods-pill span, .exporting .periods-pill-4 span { margin-top: -3px; }
+        
         .day-main-grid { display: grid; grid-template-columns: 250px 1fr 1fr 1fr; color: white; align-items: flex-start; padding: 0px 15px 0px 15px; position: relative; flex: 1; min-height: 0; }
         .day-main-grid-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .temp-side-col { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; align-self: stretch; border-right: none; padding-right: 15px; }
@@ -81,9 +85,11 @@
         .exporting .card-temps-row svg { transform: translateY(6px); }
         .temp-v-urb { font-size: 28px; font-weight: 500; line-height: 1.2; color: white; }
         .temp-v-sub { font-size: 28px; font-weight: 500; line-height: 1.2; color: rgba(255,255,255,0.9); }
+        
         .forecast-item { text-align: center; padding: 0 0 5px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-height: 0; flex-shrink: 0; padding-top: 10px; }
         .forecast-item img { width: auto; height: 165px; max-width: 165px; object-fit: contain; flex-shrink: 0; image-rendering: -webkit-optimize-contrast; }
         .forecast-temp { font-size: 46px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-top: -5px; line-height: 1; }
+        
         .stripe { display: grid; align-items: stretch; width: 100%; height: 120px; position: relative; }
         .stripe-wind { background: var(--unlp-row-wind); color: var(--unlp-blue); grid-template-columns: 250px 1fr 1fr 1fr; }
         .stripe-wind-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
@@ -91,6 +97,7 @@
         .stripe-time-4 { grid-template-columns: 250px 1fr 1fr 1fr 1fr; }
         .stripe-label { font-size: 32px; font-weight: 900; padding-left: 25px; letter-spacing: 0; text-transform: none; display: flex; align-items: center; }
         .stripe-data { font-size: 26px; font-weight: 800; text-align: center; display: flex; align-items: center; justify-content: center; padding: 10px 15px; line-height: 1.1; min-width: 0; min-height: 0; overflow: hidden; }
+        
         .cards-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 20px; padding: 0 40px; box-sizing: border-box; }
         .v-card { height: 1010px; border-radius: 80px; padding: 25px 35px; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; position: relative; overflow: hidden; box-sizing: border-box; }
         .v-card.celeste { background: var(--unlp-light); }
@@ -111,26 +118,56 @@
         .wind-section { position: absolute; bottom: 65px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .v-card .wind-arrows { margin: 0 0 10px; display: flex; justify-content: center; align-items: center; gap: 22px; min-height: 60px; }
         .wind-legend { font-size: 28px; line-height: 1.15; font-weight: 700; text-align: center; max-width: 90%; color: rgba(255,255,255,0.95); max-height: 85px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding-bottom: 6px; }
+        
         .footer-note { position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-size: 24px; font-weight: 800; color: var(--unlp-blue); text-transform: uppercase; }
         .bottom-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 45px; background-color: var(--unlp-blue); }
+        
         img { display: block; position: relative; background: transparent; min-width: 40px; min-height: 40px; object-fit: contain; image-rendering: auto; }
         .column { display: flex; flex-direction: column; flex: 1; }
         .column label { font-size: 0.75em; font-weight: 600; color: var(--unlp-blue); margin-bottom: 5px; text-transform: uppercase; }
         .time-input-group { display: flex; align-items: center; gap: 5px; }
         .time-input-group input { flex: 1; }
         .time-suffix { font-size: 0.9em; font-weight: 600; color: var(--unlp-blue); text-transform: uppercase; white-space: nowrap; }
-        .period-no-temp { font-size: 11px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
+        
         #notification-toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 15px 25px; border-radius: 8px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         #notification-toast.show { transform: translateY(0); }
         #notification-toast.error { background: #e74c3c; }
+
+        /* Estilos del panel de última publicación */
+        .pub-status-panel { background: #eef2f5; border-left: 4px solid var(--unlp-blue); padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.85em; display: none; }
+        .pub-status-panel strong { color: var(--unlp-blue); }
+        .pub-badge { background: #f39c12; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
     <h2 style="font-size: 1.1em; color: var(--unlp-blue); border-bottom: 3px solid var(--unlp-blue); padding-bottom: 8px; margin-top: 0;">ADMIN PRONÓSTICO UNLP</h2>
+    
+    <div id="last-pub-panel" class="pub-status-panel">
+        <strong>Última en sistema:</strong> <span id="last-pub-time">Buscando...</span> <span id="last-pub-badge" class="pub-badge" style="display:none;">CORRECCIÓN</span><br>
+        <strong>Autor:</strong> <span id="last-pub-author">--</span>
+    </div>
+
     <div class="field-group">
         <h4>Información General</h4>
+        
+        <div class="row">
+            <div class="column">
+                <label>Publicado por</label>
+                <select id="in-publicado-por" onchange="saveDraft()">
+                    <option value="Equipo FCAG">Equipo FCAG</option>
+                    <option value="Dr. Alejandro Godoy">Dr. Alejandro Godoy</option>
+                    <option value="Lic. Horacio Sarochar">Lic. Horacio Sarochar</option>
+                    <option value="Estudiantes de Extensión">Estudiantes de Extensión</option>
+                </select>
+            </div>
+            <div class="column" style="justify-content: center; display: flex; align-items: center; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; padding: 5px;">
+                <input type="checkbox" id="chk-correccion" style="width: 20px; height: 20px; margin: 0 10px 0 0; cursor: pointer;" onchange="saveDraft()">
+                <label for="chk-correccion" style="margin: 0; color: #856404; font-weight: 800; cursor: pointer; text-transform: uppercase;">Es corrección</label>
+            </div>
+        </div>
+
         <div class="row">
             <div class="column" style="background: #e8f4fd; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; flex-direction: row; align-items: center; gap: 10px;">
                 <input type="checkbox" id="chk-tomorrow" onchange="recalculateDates()" style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
@@ -144,6 +181,9 @@
                     <option value="La Plata">La Plata</option>
                     <option value="Junín">Junín</option>
                     <option value="Mar del Plata">Mar del Plata</option>
+                    <option value="Bolívar">Bolívar</option>
+                    <option value="Tandil">Tandil</option>
+                    <option value="Bahía Blanca">Bahía Blanca</option>
                 </select>
             </div>
             <div class="column">
@@ -162,6 +202,12 @@
         </div>
     </div>
 
+    <div class="field-group">
+        <h4>Texto Automático para Redes</h4>
+        <textarea id="social-text" rows="6" style="width:100%; font-size:0.8em; resize:vertical; background:#fff;" readonly></textarea>
+        <button class="btn btn-p1" style="padding: 8px; font-size: 0.85em; margin-bottom: 0;" onclick="copySocialText()">📋 Copiar Texto Redes</button>
+    </div>
+
     <button class="btn btn-save" onclick="saveToWeb()">🌐 PUBLICAR EN API</button>
     <button class="btn btn-p1" onclick="download('placa-1')">⬇ PLACA 1 (D1-D2)</button>
     <button class="btn btn-p2" onclick="download('placa-2')">⬇ PLACA 2 (D3-D4)</button>
@@ -171,7 +217,6 @@
 </div>
 
 <div id="viewer">
-    <!-- PLACA 1 -->
     <div class="placa-preview">
         <div id="placa-1" class="placa-box">
             <div class="header-container">
@@ -264,7 +309,6 @@
         </div>
     </div>
 
-    <!-- PLACA 2 -->
     <div class="placa-preview">
         <div id="placa-2" class="placa-box">
             <div class="header-container">
@@ -335,32 +379,10 @@
 <div id="notification-toast">✅ Operación exitosa</div>
 
 <script>
+    // ⚠️ REEMPLAZAR CON TU URL DE GOOGLE APPS SCRIPT
+    const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
+
     const POP_OPTS = ["0 %", "10 a 40 %", "40 a 70 %", "70 a 100 %"];
-
-    function capitalizeFirst(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    }
-
-    function showToast(message, isError = false) {
-        const toast = document.getElementById('notification-toast');
-        toast.innerText = message;
-        if (isError) toast.classList.add('error');
-        else toast.classList.remove('error');
-        toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); }, 3000);
-    }
-
-    window.addEventListener('error', function(e) {
-        if (e.target && e.target.tagName === 'IMG') {
-            const src = e.target.getAttribute('src');
-            if (!src || src.startsWith('data:')) return;
-            const filename = src.split('/').pop();
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="100%" height="100%" fill="#e2e8f0" rx="15"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14px" font-weight="bold" fill="#4a5568">📷 ${filename}</text></svg>`;
-            e.target.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-        }
-    }, true);
-
     const COMBINED_WEATHER_OPTS = [
         "despejado", "ligeramente nublado", "algo nublado", "parcialmente nublado",
         "cubierto", "neblinas", "nieblas",
@@ -368,6 +390,16 @@
     ];
     const WIND_INT = ["leves", "moderados", "regulares", "fuertes o muy fuertes"];
     const WIND_DIR = ["norte", "noreste", "este", "sudeste", "sur", "sudoeste", "oeste", "noroeste"];
+
+    function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''; }
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('notification-toast');
+        toast.innerText = message;
+        if (isError) toast.classList.add('error'); else toast.classList.remove('error');
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
 
     const iconMap = {
         "despejado": { dia: "soleado.png", noche: "Despejado_noche.png" },
@@ -383,10 +415,7 @@
         "tormentas aisladas": { dia: "Tormentas_dia.png", noche: "Tormentas_noche.png" }
     };
 
-    const windDirectionsAngles = {
-        "norte": 180, "noreste": 225, "este": 270, "sudeste": 315,
-        "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135
-    };
+    const windDirectionsAngles = { "norte": 180, "noreste": 225, "este": 270, "sudeste": 315, "sur": 0, "sudoeste": 45, "oeste": 90, "noroeste": 135 };
 
     function getMomentoDia(dia, tramo) {
         if (dia === 'h') return tramo === 3 ? 'noche' : 'dia';
@@ -466,8 +495,7 @@
 
     function recalculateDates() {
         const today = new Date();
-        const isTomorrow = document.getElementById('chk-tomorrow').checked;
-        if (isTomorrow) today.setDate(today.getDate() + 1);
+        if (document.getElementById('chk-tomorrow').checked) today.setDate(today.getDate() + 1);
 
         const ds = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
         const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
@@ -484,88 +512,56 @@
             let iterDate = new Date(today);
             iterDate.setDate(today.getDate() + i);
             document.querySelectorAll(`.n${i}`).forEach(el => el.innerText = ds[iterDate.getDay()]);
-            let iterD = String(iterDate.getDate()).padStart(2, '0');
-            let iterM = ms[iterDate.getMonth()];
-            let iterY = String(iterDate.getFullYear()).slice(-2);
-            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${iterD}/${iterM}/${iterY}`);
+            document.querySelectorAll(`.f${i}`).forEach(el => el.innerText = `${String(iterDate.getDate()).padStart(2, '0')}/${ms[iterDate.getMonth()]}/${String(iterDate.getFullYear()).slice(-2)}`);
         }
     }
 
-    function updateTempField(dia, tipo, zona) {
-        const value = document.getElementById(`in-${dia}-${tipo}-${zona}`).value;
-        const targetId = zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`;
-        up(targetId, value);
-    }
-
-    function updatePeriodTemp(dia, idx) {
-        const value = document.getElementById(`${dia}-temp-${idx}`).value;
-        up(`${dia}-t${idx}`, value);
-    }
-
+    function updateTempField(dia, tipo, zona) { up(zona === 'sub' ? `${dia}-${tipo}-sub` : `${dia}-${tipo}`, document.getElementById(`in-${dia}-${tipo}-${zona}`).value); saveDraft(); }
+    function updatePeriodTemp(dia, idx) { up(`${dia}-t${idx}`, document.getElementById(`${dia}-temp-${idx}`).value); saveDraft(); }
+    
     function getWindArrowSVG(dir) {
         const angle = windDirectionsAngles[dir] !== undefined ? windDirectionsAngles[dir] : 0;
         return `<div style="width: 72px; height: 72px; margin: 0 8px; flex-shrink: 0;"><svg viewBox="0 0 100 100" width="72" height="72" style="display: block;"><g transform="rotate(${angle} 50 50)"><path d="M 35 75 L 65 75 L 65 40 L 85 40 L 50 10 L 15 40 L 35 40 Z" fill="#ffffff" /></g></svg></div>`;
     }
 
     function updateWindLegendAndArrows(dia) {
-        const textWrapper = document.getElementById(`${dia}-wind-text`);
-        const arrowContainer = document.getElementById(`${dia}-arrows-container`);
-        if(!textWrapper || !arrowContainer) return;
+        const tw = document.getElementById(`${dia}-wind-text`);
+        const ac = document.getElementById(`${dia}-arrows-container`);
+        if(!tw || !ac) return;
 
-        let arrowsHTML = '';
-        const i1 = document.getElementById(`${dia}-v-i1`).value;
-        const d1 = document.getElementById(`${dia}-v-d1`).value;
-        let r1 = document.getElementById(`${dia}-rafagas-1`).value;
-        if (r1 && !r1.toLowerCase().includes('km/h')) r1 += ' km/h';
-        const i2 = document.getElementById(`${dia}-v-i2`).value;
-        const d2 = document.getElementById(`${dia}-v-d2`).value;
-        let r2 = document.getElementById(`${dia}-rafagas-2`).value;
-        if (r2 && !r2.toLowerCase().includes('km/h')) r2 += ' km/h';
+        let arrows = '';
+        const i1 = document.getElementById(`${dia}-v-i1`).value, d1 = document.getElementById(`${dia}-v-d1`).value;
+        let r1 = document.getElementById(`${dia}-rafagas-1`).value; if (r1 && !r1.toLowerCase().includes('km/h')) r1 += ' km/h';
+        const i2 = document.getElementById(`${dia}-v-i2`).value, d2 = document.getElementById(`${dia}-v-d2`).value;
+        let r2 = document.getElementById(`${dia}-rafagas-2`).value; if (r2 && !r2.toLowerCase().includes('km/h')) r2 += ' km/h';
 
-        if(i1 && d1) arrowsHTML += getWindArrowSVG(d1);
-        if(i2 && d2) arrowsHTML += getWindArrowSVG(d2);
+        if(i1 && d1) arrows += getWindArrowSVG(d1);
+        if(i2 && d2) arrows += getWindArrowSVG(d2);
 
-        if (!i1 && !d1 && !r1) { textWrapper.innerText = '--'; arrowContainer.innerHTML = ''; return; }
+        if (!i1 && !d1 && !r1) { tw.innerText = '--'; ac.innerHTML = ''; return; }
 
         let w1_desc = r1 ? `ráfagas de ${r1}` : `vientos ${i1} del ${d1}`;
         let w2_desc = r2 ? `ráfagas de ${r2}` : `vientos ${i2} del ${d2}`;
-
-        if ((i1 && d1) || r1) {
-            if ((i2 && d2) || r2) {
-                textWrapper.innerText = w1_desc === w2_desc ? capitalizeFirst(`${w1_desc}.`) : capitalizeFirst(`${w1_desc} rotando a ${w2_desc}.`);
-            } else {
-                textWrapper.innerText = capitalizeFirst(`${w1_desc}.`);
-            }
-        }
-
-        arrowContainer.innerHTML = arrowsHTML;
-
-        const legendContainer = document.getElementById(`${dia}-wind-legend`);
-        textWrapper.style.fontSize = '28px';
-        let currentSize = 28;
-        while (legendContainer.scrollHeight > legendContainer.clientHeight && currentSize > 14) {
-            currentSize--;
-            textWrapper.style.fontSize = currentSize + 'px';
-        }
+        tw.innerText = capitalizeFirst(((i1 && d1) || r1) ? (((i2 && d2) || r2) ? (w1_desc === w2_desc ? `${w1_desc}.` : `${w1_desc} rotando a ${w2_desc}.`) : `${w1_desc}.`) : '');
+        
+        ac.innerHTML = arrows;
+        tw.style.fontSize = '28px';
+        let sz = 28;
+        const lc = document.getElementById(`${dia}-wind-legend`);
+        while (lc.scrollHeight > lc.clientHeight && sz > 14) { sz--; tw.style.fontSize = sz + 'px'; }
     }
 
     function updateSky(dia, tramo) {
         try {
-            const skySelect = document.getElementById(`${dia}-sky-select-${tramo}`);
-            const valor = skySelect ? skySelect.value : "";
-            const popSelect = document.getElementById(`${dia}-pop-${tramo}`);
-            const pop = popSelect ? popSelect.value : "";
+            const v = document.getElementById(`${dia}-sky-select-${tramo}`)?.value || "";
+            const pop = document.getElementById(`${dia}-pop-${tramo}`)?.value || "";
 
             if(!dia.startsWith('d')) {
                 const target = document.getElementById(`${dia}-w${tramo}`);
                 if(target) {
-                    let text = "--";
-                    if (valor) text = pop ? capitalizeFirst(`${pop} prob. de ${valor}`) : capitalizeFirst(valor);
-                    else if (pop) text = `${pop} prob. precipitaciones`;
-                    target.innerText = text;
-                    const count = (dia === 'h') ? 3 : 4;
+                    target.innerText = v ? (pop ? capitalizeFirst(`${pop} prob. de ${v}`) : capitalizeFirst(v)) : (pop ? `${pop} prob. precipitaciones` : "--");
                     const elements = [];
-                    for (let i = 1; i <= count; i++) { const el = document.getElementById(`${dia}-w${i}`); if (el) elements.push(el); }
+                    for (let i = 1; i <= (dia === 'h' ? 3 : 4); i++) { const el = document.getElementById(`${dia}-w${i}`); if (el) elements.push(el); }
                     syncRowFontSize(elements, 26, 12);
                 }
             } else {
@@ -574,38 +570,30 @@
 
             const imgEl = document.getElementById(`${dia}-icon-${tramo}`);
             if(imgEl && imgEl.tagName === 'IMG') {
-                if(valor && iconMap[valor]) {
-                    const momento = getMomentoDia(dia, tramo);
-                    imgEl.src = `images/${iconMap[valor][momento]}`;
-                    imgEl.style.transform = valor === "despejado" ? "scale(1)" : "scale(1.25)";
-                } else {
-                    imgEl.src = `images/default.png`;
-                    imgEl.style.transform = "scale(1)";
-                }
+                if(v && iconMap[v]) {
+                    imgEl.src = `images/${iconMap[v][getMomentoDia(dia, tramo)]}`;
+                    imgEl.style.transform = v === "despejado" ? "scale(1)" : "scale(1.25)";
+                } else { imgEl.src = `images/default.png`; imgEl.style.transform = "scale(1)"; }
             }
-        } catch (e) { console.error('Error en updateSky:', e); }
+            saveDraft();
+        } catch (e) { console.error('Error updateSky:', e); }
     }
 
     function updateWind(dia, tramo) {
-        const i = document.getElementById(`${dia}-v-i${tramo}`).value;
-        const d = document.getElementById(`${dia}-v-d${tramo}`).value;
-        let r = document.getElementById(`${dia}-rafagas-${tramo}`).value;
-        if (r && !r.toLowerCase().includes('km/h')) r += ' km/h';
+        const i = document.getElementById(`${dia}-v-i${tramo}`).value, d = document.getElementById(`${dia}-v-d${tramo}`).value;
+        let r = document.getElementById(`${dia}-rafagas-${tramo}`).value; if (r && !r.toLowerCase().includes('km/h')) r += ' km/h';
 
         if(!dia.startsWith('d')) {
-            const target = document.getElementById(`${dia}-v${tramo}`);
-            if(target) {
-                let text = "--";
-                if (r) text = `Ráfagas: ${r}`;
-                else if (i && d) text = capitalizeFirst(`${i} del ${d}`);
-                target.innerText = text;
-                const count = (dia === 'h') ? 3 : 4;
-                const elements = [];
-                for (let j = 1; j <= count; j++) { const el = document.getElementById(`${dia}-v${j}`); if (el) elements.push(el); }
-                syncRowFontSize(elements, 26, 12);
+            const t = document.getElementById(`${dia}-v${tramo}`);
+            if(t) {
+                t.innerText = r ? `Ráfagas: ${r}` : (i && d ? capitalizeFirst(`${i} del ${d}`) : "--");
+                const els = [];
+                for (let j = 1; j <= (dia === 'h' ? 3 : 4); j++) { const el = document.getElementById(`${dia}-v${j}`); if (el) els.push(el); }
+                syncRowFontSize(els, 26, 12);
             }
         }
         if(dia === 'd3' || dia === 'd4') updateWindLegendAndArrows(dia);
+        saveDraft();
     }
 
     function up(id, v) {
@@ -617,28 +605,49 @@
     }
 
     function updateFullDesc(dia, v) {
-        const target = document.getElementById(`${dia}-w1`);
-        const container = document.getElementById(`${dia}-desc-container`);
-        const pop1 = document.getElementById(`${dia}-pop-1`)?.value;
-        const pop2 = document.getElementById(`${dia}-pop-2`)?.value;
-        let popText = "";
-        if (pop1 && pop2 && pop1 === pop2) popText = `${pop1} prob. `;
-        else if (pop1 && pop2) popText = `${pop1} luego ${pop2} prob. `;
-        else if (pop1) popText = `${pop1} prob. `;
-        else if (pop2) popText = `${pop2} prob. `;
+        const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
+        const p1 = document.getElementById(`${dia}-pop-1`)?.value, p2 = document.getElementById(`${dia}-pop-2`)?.value;
+        let pt = (p1 && p2 && p1 === p2) ? `${p1} prob. ` : (p1 && p2 ? `${p1} luego ${p2} prob. ` : (p1 ? `${p1} prob. ` : (p2 ? `${p2} prob. ` : "")));
 
-        let fullString = (v || "--");
-        if (popText) fullString = capitalizeFirst(popText + fullString.toLowerCase());
+        let str = pt ? capitalizeFirst(pt + (v || "--").toLowerCase()) : (v || "--");
 
         if (target && container) {
-            target.innerText = fullString;
-            target.style.fontSize = '28px';
-            let currentSize = 28;
-            while (target.scrollHeight > container.clientHeight && currentSize > 12) {
-                currentSize--;
-                target.style.fontSize = currentSize + 'px';
+            target.innerText = str; target.style.fontSize = '28px';
+            let sz = 28;
+            while (target.scrollHeight > container.clientHeight && sz > 12) { sz--; target.style.fontSize = sz + 'px'; }
+        } else if (target) { target.innerText = str; }
+        saveDraft();
+    }
+
+    // JSONP para leer la última publicación
+    function fetchLastPublication(city) {
+        const panel = document.getElementById('last-pub-panel');
+        const timeSpan = document.getElementById('last-pub-time');
+        const authorSpan = document.getElementById('last-pub-author');
+        const badge = document.getElementById('last-pub-badge');
+
+        panel.style.display = 'block';
+        timeSpan.innerText = 'Cargando...';
+        authorSpan.innerText = '--';
+        badge.style.display = 'none';
+
+        const callbackName = 'jsonp_admin_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            if(data && !data.error) {
+                timeSpan.innerText = `${data.forecast_date} a las ${data.emission_time.substring(0,5)} hs`;
+                authorSpan.innerText = data.publicado_por || 'Equipo FCAG';
+                badge.style.display = data.es_correccion === "SI" || data.es_correccion === true ? 'inline-block' : 'none';
+            } else {
+                timeSpan.innerText = 'Sin publicaciones previas';
+                authorSpan.innerText = '--';
             }
-        } else if (target) { target.innerText = fullString; }
+        };
+
+        const script = document.createElement('script');
+        script.src = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}&callback=${callbackName}&_t=${Date.now()}`;
+        document.body.appendChild(script);
     }
 
     function updateCity(v) {
@@ -648,88 +657,100 @@
             else if (v.toUpperCase() === 'JUNÍN') { el.style.fontSize = '72px'; el.style.letterSpacing = '-2px'; el.style.marginLeft = '70px'; }
             else { el.style.fontSize = '72px'; el.style.letterSpacing = '-2px'; el.style.marginLeft = '10px'; }
         });
+        fetchLastPublication(v);
+        saveDraft();
     }
 
-    function updateDateVal(v) { document.querySelectorAll('.f0').forEach(el => el.innerText = v.toUpperCase()); }
-
+    function updateDateVal(v) { document.querySelectorAll('.f0').forEach(el => el.innerText = v.toUpperCase()); saveDraft(); }
+    
     function formatTimeInput(input) {
-        let value = input.value.replace(/[^\d]/g, '');
-        if (value.length >= 2) {
-            const hours = value.substring(0, 2);
-            const minutes = value.substring(2, 4);
-            if (parseInt(hours) > 23) value = '23' + minutes;
-            if (minutes.length > 0 && parseInt(minutes) > 59) value = hours + '59';
-            value = value.substring(0, 2) + ':' + value.substring(2, 4);
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val.length >= 2) {
+            let h = val.substring(0, 2), m = val.substring(2, 4);
+            if (parseInt(h) > 23) val = '23' + m;
+            if (m.length > 0 && parseInt(m) > 59) val = h + '59';
+            val = val.substring(0, 2) + ':' + val.substring(2, 4);
         }
-        input.value = value;
-        up('out-hora', value + ' hs');
+        input.value = val; up('out-hora', val + ' hs'); saveDraft();
+    }
+    
+    function validateTime(input) {
+        if (!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(input.value) && input.value !== '') {
+            const now = new Date();
+            input.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            up('out-hora', input.value + ' hs'); saveDraft();
+        }
     }
 
-    function validateTime(input) {
-        const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-        if (!timeRegex.test(input.value) && input.value !== '') {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            input.value = `${hours}:${minutes}`;
-            up('out-hora', `${hours}:${minutes} hs`);
-        }
+    // Generador Texto para Redes
+    function generateSocialText() {
+        const city = document.getElementById('city-selector').value;
+        const date = document.getElementById('in-fecha-emision').value;
+        const min1 = document.getElementById('in-h-min-urb').value || '--';
+        const max1 = document.getElementById('in-h-max-urb').value || '--';
+        const sky1 = document.getElementById('h-sky-select-1').value || "despejado";
+        const sky2 = document.getElementById('h-sky-select-2').value || "";
+
+        let text = `📡 PRONÓSTICO METEOROLÓGICO: ${city.toUpperCase()}\n🗓️ Actualización: ${date}\n\n`;
+        text += `🌤️ HOY:\nTemperaturas: Mín ${min1}°C | Máx ${max1}°C\nCondiciones: ${capitalizeFirst(sky1)}`;
+        if (sky2 && sky2 !== sky1) text += ` pasando a ${sky2}`;
+        text += `.\n\n📱 Deslizá para ver el pronóstico extendido y los detalles por hora.\n\n`;
+        text += `#Meteorologia #Clima #FCAG #UNLP #${city.replace(/\s+/g, '')} #Pronostico`;
+
+        document.getElementById('social-text').value = text;
+    }
+
+    function copySocialText() {
+        const txt = document.getElementById('social-text');
+        txt.select();
+        document.execCommand('copy');
+        showToast("¡Texto copiado al portapapeles!");
     }
 
     function getFilename(type) {
-        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
-        const cleanDate = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
-        if (type === 'placa-1') return `Pronostico_${city}_${cleanDate}_${document.querySelector('.n0').innerText}_${document.querySelector('.n1').innerText}`;
-        if (type === 'placa-2') return `Pronostico_${city}_${cleanDate}_${document.querySelector('.n2').innerText}_${document.querySelector('.n3').innerText}`;
-        return `Pronostico_${city}_${cleanDate}`;
+        const c = document.getElementById('city-selector').value.replace(/\s+/g, '_');
+        const d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
+        if (type === 'placa-1') return `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_${document.querySelector('.n1').innerText}`;
+        if (type === 'placa-2') return `Pronostico_${c}_${d}_${document.querySelector('.n2').innerText}_${document.querySelector('.n3').innerText}`;
+        return `Pronostico_${c}_${d}`;
     }
 
     async function download(id) {
         await document.fonts.ready;
-        const el = document.getElementById(id);
-        el.classList.add('exporting');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        const el = document.getElementById(id); el.classList.add('exporting');
+        await new Promise(r => setTimeout(r, 50));
         const images = el.querySelectorAll("img");
-        await Promise.all([...images].map(img => { if (img.complete) return Promise.resolve(); return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; }); }));
+        await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
         const canvas = await html2canvas(el, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         el.classList.remove('exporting');
-        const link = document.createElement("a");
-        link.download = getFilename(id) + `.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+        const link = document.createElement("a"); link.download = getFilename(id) + `.png`; link.href = canvas.toDataURL("image/png"); link.click();
         showToast(`Placa descargada correctamente`);
     }
 
     async function downloadPDF() {
         await document.fonts.ready;
-        const city = document.getElementById('city-selector').value.replace(/\s+/g, '_');
-        const rawDate = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
-        const pdfName = `Pronostico_${city}_${rawDate}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
-        const el1 = document.getElementById('placa-1');
-        const el2 = document.getElementById('placa-2');
+        const c = document.getElementById('city-selector').value.replace(/\s+/g, '_'), d = document.getElementById('in-fecha-emision').value.replace(/\//g, '');
+        const pdfName = `Pronostico_${c}_${d}_${document.querySelector('.n0').innerText}_a_${document.querySelector('.n3').innerText}.pdf`;
+        const el1 = document.getElementById('placa-1'), el2 = document.getElementById('placa-2');
         el1.classList.add('exporting'); el2.classList.add('exporting');
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(r => setTimeout(r, 50));
         const images = document.querySelectorAll("img");
-        await Promise.all([...images].map(img => { if (img.complete) return Promise.resolve(); return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; }); }));
-        const canvas1 = await html2canvas(el1, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
-        const canvas2 = await html2canvas(el2, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
+        await Promise.all([...images].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
+        const canvas1 = await html2canvas(el1, { scale: 4, useCORS: true, logging: false, backgroundColor: null }), canvas2 = await html2canvas(el2, { scale: 4, useCORS: true, logging: false, backgroundColor: null });
         el1.classList.remove('exporting'); el2.classList.remove('exporting');
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
-        doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
-        doc.addPage();
-        doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350);
-        doc.save(pdfName);
+        const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: [1080, 1350] });
+        doc.addImage(canvas1.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.addPage(); doc.addImage(canvas2.toDataURL('image/png'), 'PNG', 0, 0, 1080, 1350); doc.save(pdfName);
         showToast(`PDF generado exitosamente`);
     }
 
     function saveDraft() {
         const data = {};
-        const excludeIds = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision'];
+        const exclude = ['chk-tomorrow', 'in-fecha-emision', 'in-hora-emision', 'social-text'];
         document.querySelectorAll('input, select, textarea').forEach(el => {
-            if(el.id && !excludeIds.includes(el.id)) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+            if(el.id && !exclude.includes(el.id)) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
         });
         localStorage.setItem('pronoDraft', JSON.stringify(data));
+        generateSocialText();
     }
 
     function loadDraft() {
@@ -741,84 +762,38 @@
             ['h','m','d3','d4'].forEach(dia => { updateTempField(dia, 'min', 'urb'); updateTempField(dia, 'min', 'sub'); updateTempField(dia, 'max', 'urb'); updateTempField(dia, 'max', 'sub'); });
             [1,2,3].forEach(i => { updatePeriodTemp('h', i); updateSky('h', i); updateWind('h', i); });
             [1,2,3,4].forEach(i => { updatePeriodTemp('m', i); updateSky('m', i); updateWind('m', i); });
-            [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); });
-            updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
-            [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); });
-            updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
+            [1,2].forEach(i => { updateSky('d3', i); updateWind('d3', i); }); updateFullDesc('d3', document.getElementById('d3-custom-desc').value);
+            [1,2].forEach(i => { updateSky('d4', i); updateWind('d4', i); }); updateFullDesc('d4', document.getElementById('d4-custom-desc').value);
         } catch (e) { console.error("Error al cargar borrador", e); }
     }
 
     function clearDraft() {
         if(confirm("¿Estás seguro de borrar todo el progreso guardado y empezar de cero?")) {
-            localStorage.removeItem('pronoDraft');
-            showToast("Borrador eliminado. Recargando...");
-            setTimeout(() => location.reload(), 1000);
+            localStorage.removeItem('pronoDraft'); showToast("Borrador eliminado. Recargando..."); setTimeout(() => location.reload(), 1000);
         }
-    }
-
-    function populateDummyData() {
-        try {
-            document.getElementById('in-h-min-urb').value = '5'; document.getElementById('in-h-min-sub').value = '3'; document.getElementById('in-h-max-urb').value = '15'; document.getElementById('in-h-max-sub').value = '15';
-            updateTempField('h', 'min', 'urb'); updateTempField('h', 'min', 'sub'); updateTempField('h', 'max', 'urb'); updateTempField('h', 'max', 'sub');
-            document.getElementById('h-temp-1').value = '5'; document.getElementById('h-temp-2').value = '15'; document.getElementById('h-temp-3').value = '8';
-            updatePeriodTemp('h', 1); updatePeriodTemp('h', 2); updatePeriodTemp('h', 3);
-            document.getElementById('h-sky-select-1').value = 'despejado'; document.getElementById('h-sky-select-2').value = 'despejado'; document.getElementById('h-sky-select-3').value = 'despejado';
-            updateSky('h', 1); updateSky('h', 2); updateSky('h', 3);
-            document.getElementById('h-v-i1').value = 'leves'; document.getElementById('h-v-d1').value = 'oeste'; document.getElementById('h-v-i2').value = 'leves'; document.getElementById('h-v-d2').value = 'oeste'; document.getElementById('h-v-i3').value = 'leves'; document.getElementById('h-v-d3').value = 'oeste';
-            updateWind('h', 1); updateWind('h', 2); updateWind('h', 3);
-
-            document.getElementById('in-m-min-urb').value = '4'; document.getElementById('in-m-min-sub').value = '3'; document.getElementById('in-m-max-urb').value = '16'; document.getElementById('in-m-max-sub').value = '16';
-            updateTempField('m', 'min', 'urb'); updateTempField('m', 'min', 'sub'); updateTempField('m', 'max', 'urb'); updateTempField('m', 'max', 'sub');
-            document.getElementById('m-temp-1').value = '7'; document.getElementById('m-temp-2').value = '4'; document.getElementById('m-temp-3').value = '16'; document.getElementById('m-temp-4').value = '9';
-            updatePeriodTemp('m', 1); updatePeriodTemp('m', 2); updatePeriodTemp('m', 3); updatePeriodTemp('m', 4);
-            document.getElementById('m-sky-select-1').value = 'despejado'; document.getElementById('m-sky-select-2').value = 'despejado'; document.getElementById('m-sky-select-3').value = 'despejado'; document.getElementById('m-sky-select-4').value = 'despejado';
-            updateSky('m', 1); updateSky('m', 2); updateSky('m', 3); updateSky('m', 4);
-            document.getElementById('m-v-i1').value = 'leves'; document.getElementById('m-v-d1').value = 'oeste'; document.getElementById('m-v-i2').value = 'leves'; document.getElementById('m-v-d2').value = 'oeste'; document.getElementById('m-v-i3').value = 'leves'; document.getElementById('m-v-d3').value = 'oeste'; document.getElementById('m-v-i4').value = 'leves'; document.getElementById('m-v-d4').value = 'oeste';
-            updateWind('m', 1); updateWind('m', 2); updateWind('m', 3); updateWind('m', 4);
-
-            document.getElementById('in-d3-min-urb').value = '7'; document.getElementById('in-d3-min-sub').value = '6'; document.getElementById('in-d3-max-urb').value = '13'; document.getElementById('in-d3-max-sub').value = '13';
-            updateTempField('d3', 'min', 'urb'); updateTempField('d3', 'min', 'sub'); updateTempField('d3', 'max', 'urb'); updateTempField('d3', 'max', 'sub');
-            document.getElementById('d3-sky-select-1').value = 'algo nublado'; document.getElementById('d3-sky-select-2').value = 'algo nublado';
-            updateSky('d3', 1); updateSky('d3', 2);
-            document.getElementById('d3-v-i1').value = 'leves'; document.getElementById('d3-v-d1').value = 'sudoeste'; document.getElementById('d3-v-i2').value = 'leves'; document.getElementById('d3-v-d2').value = 'sur';
-            updateWind('d3', 1); updateWind('d3', 2);
-            document.getElementById('d3-custom-desc').value = 'Cielo algo nublado.'; updateFullDesc('d3', 'Cielo algo nublado.');
-
-            document.getElementById('in-d4-min-urb').value = '4'; document.getElementById('in-d4-min-sub').value = '3'; document.getElementById('in-d4-max-urb').value = '11'; document.getElementById('in-d4-max-sub').value = '11';
-            updateTempField('d4', 'min', 'urb'); updateTempField('d4', 'min', 'sub'); updateTempField('d4', 'max', 'urb'); updateTempField('d4', 'max', 'sub');
-            document.getElementById('d4-sky-select-1').value = 'ligeramente nublado'; document.getElementById('d4-sky-select-2').value = 'algo nublado';
-            updateSky('d4', 1); updateSky('d4', 2);
-            document.getElementById('d4-v-i1').value = 'leves'; document.getElementById('d4-v-d1').value = 'sur'; document.getElementById('d4-v-i2').value = 'leves'; document.getElementById('d4-v-d2').value = 'sudeste';
-            updateWind('d4', 1); updateWind('d4', 2);
-            document.getElementById('d4-custom-desc').value = 'Cielo ligeramente a algo nublado.'; updateFullDesc('d4', 'Cielo ligeramente a algo nublado.');
-        } catch (e) { console.error('Error auto-población', e); }
     }
 
     window.onload = function() {
         renderSidebar();
         const today = new Date();
-        const h = String(today.getHours()).padStart(2, '0');
-        const m = String(today.getMinutes()).padStart(2, '0');
-        const specificTime = `${h}:${m}`;
+        const specificTime = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
         const timeInput = document.getElementById('in-hora-emision');
         if (timeInput) { timeInput.value = specificTime; up('out-hora', specificTime + ' hs'); }
         recalculateDates();
-        const initialCity = document.getElementById('city-selector');
-        if (initialCity) updateCity(initialCity.value);
+        
         setTimeout(() => {
             if(localStorage.getItem('pronoDraft')) { loadDraft(); showToast("Borrador recuperado"); }
-            else { populateDummyData(); }
-            setInterval(saveDraft, 2000);
+            const initialCity = document.getElementById('city-selector');
+            if (initialCity) updateCity(initialCity.value);
+            generateSocialText();
         }, 150);
     };
 
     async function saveToWeb() {
         const city = document.getElementById('city-selector').value;
         const outHora = document.getElementById('out-hora').innerText.replace('hs', '').trim();
-
         const baseDate = new Date();
         if (document.getElementById('chk-tomorrow').checked) baseDate.setDate(baseDate.getDate() + 1);
-
         const getLocalDateString = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -826,6 +801,8 @@
             city: city,
             forecast_date: getLocalDateString(baseDate),
             emission_time: outHora + ":00",
+            publicado_por: document.getElementById('in-publicado-por').value,
+            es_correccion: document.getElementById('chk-correccion').checked,
             daily_forecasts: []
         };
 
@@ -838,16 +815,12 @@
 
         for (let i = 0; i < dayConfigs.length; i++) {
             const conf = dayConfigs[i];
-            const dateObj = new Date(baseDate);
-            dateObj.setDate(baseDate.getDate() + i);
+            const dateObj = new Date(baseDate); dateObj.setDate(baseDate.getDate() + i);
 
             const dailyForecast = {
-                date: getLocalDateString(dateObj),
-                day_name: dayNames[dateObj.getDay()],
-                temp_min: parseFloat(document.getElementById(`in-${conf.id}-min-urb`)?.value) || null,
-                temp_max: parseFloat(document.getElementById(`in-${conf.id}-max-urb`)?.value) || null,
-                temp_min_suburban: parseFloat(document.getElementById(`in-${conf.id}-min-sub`)?.value) || null,
-                temp_max_suburban: parseFloat(document.getElementById(`in-${conf.id}-max-sub`)?.value) || null,
+                date: getLocalDateString(dateObj), day_name: dayNames[dateObj.getDay()],
+                temp_min: parseFloat(document.getElementById(`in-${conf.id}-min-urb`)?.value) || null, temp_max: parseFloat(document.getElementById(`in-${conf.id}-max-urb`)?.value) || null,
+                temp_min_suburban: parseFloat(document.getElementById(`in-${conf.id}-min-sub`)?.value) || null, temp_max_suburban: parseFloat(document.getElementById(`in-${conf.id}-max-sub`)?.value) || null,
                 period_forecasts: []
             };
 
@@ -858,8 +831,8 @@
                 const windDir = document.getElementById(`${conf.id}-v-d${tramoIdx}`)?.value || null;
                 const rafagasStr = document.getElementById(`${conf.id}-rafagas-${tramoIdx}`)?.value || "";
                 const pop = document.getElementById(`${conf.id}-pop-${tramoIdx}`)?.value || null;
-                const rainTypes = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"];
-                const isRain = rainTypes.includes(skyCond);
+                const isRain = ["lluvias aisladas", "lloviznas", "lluvias y tormentas aisladas", "tormentas aisladas"].includes(skyCond);
+                
                 let temp = null;
                 if (conf.id === 'h' || conf.id === 'm') {
                     const tInput = document.getElementById(`${conf.id}-temp-${tramoIdx}`);
@@ -867,46 +840,28 @@
                 }
                 const img = document.getElementById(`${conf.id}-icon-${tramoIdx}`);
                 const iconCode = img ? img.getAttribute('src').split('/').pop().replace('.png', '') : 'default';
+                
                 dailyForecast.period_forecasts.push({
                     period: periodValue,
-                    precipitation_description: isRain ? skyCond : null,
-                    probability_of_precipitation: pop,
-                    sky_condition: isRain ? null : (skyCond || null),
-                    temperature: temp,
-                    weather_icon_code: iconCode,
-                    wind_direction: windDir,
-                    wind_intensity: windInt,
+                    precipitation_description: isRain ? skyCond : null, probability_of_precipitation: pop,
+                    sky_condition: isRain ? null : (skyCond || null), temperature: temp,
+                    weather_icon_code: iconCode, wind_direction: windDir, wind_intensity: windInt,
                     wind_gusts: rafagasStr ? parseInt(rafagasStr.replace(/\D/g, '')) || null : null
                 });
             });
             forecastPayload.daily_forecasts.push(dailyForecast);
         }
 
-        console.log("Enviando JSON a la API:", forecastPayload);
-
         try {
-           const GOOGLE_APP_URL =
-'https://script.google.com/macros/s/AKfycbyKbRPl7kgOPJWsDtq_2eb7Da6P8iDGvF75_-D55Rwo0xn3WSv_eJnQe2Azgwj4i3XS/exec';
-
-            // Crea el array simple que coincide con las columnas de la hoja:
-            // D=MinUrb, F=MaxUrb, H=Cielo1, I=Pop1, J=Temp1, K=Int1, L=Dir1
             await fetch(GOOGLE_APP_URL, {
-    method: 'POST',
-    mode: 'no-cors',            
-    headers: {
-        'Content-Type': 'text/plain'
-    },
-    body: JSON.stringify(forecastPayload)
-});
-
-
-
-showToast("Pronóstico guardado");
-            showToast("¡Pronóstico guardado en la planilla con éxito!");
-
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(forecastPayload)
+            });
+            showToast("¡Pronóstico publicado en la base de datos con éxito!");
+            // Actualizar el panel forzando la recarga para que lo muestre de inmediato
+            setTimeout(() => { fetchLastPublication(city); }, 1000);
         } catch (e) {
-            console.error("Error crítico de red:", e);
-            showToast("Error de conexión con Google Sheets", true);
+            console.error("Error de red:", e); showToast("Error de conexión con Google Sheets", true);
         }
     }
 </script>
