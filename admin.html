@@ -44,7 +44,7 @@
         .logo-fcag { height: 65px; object-fit: contain; flex-shrink: 0; }
         
         /* MODIFICADO: Logo de Pronóstico ajustado para que no se salga de la capsula */
-        .logo-prono { height: 85px; width: 85px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 8px; }
+        .logo-prono { height: 75px; width: 75px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 10px; }
         
         .logo-unlp { height: 75px; object-fit: contain; flex-shrink: 0; z-index: 2; transform: translateY(2px); }
         .header-capsule h1 { font-size: 58px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -2px; line-height: 1; z-index: 1; }
@@ -616,7 +616,7 @@
         saveDraft();
     }
 
-    // MODIFICADO: Se corrigió la lógica para que el '°' NO aparezca en la hora (excluyendo out-hora)
+    // MODIFICADO: Se corrigió la lógica para que el '°' aplique solo a temperaturas reales
     function up(id, v) {
         let val = v ? String(v).trim() : '--';
         const isTemp = id.includes('min') || id.includes('max') || id.match(/-t[1-4]$/);
@@ -626,7 +626,7 @@
         if(el) el.innerText = val;
     }
 
-    function updateFullDesc(dia, v) {
+    // ELIMINADO: Estaba duplicada esta función y rompía todo el sistema
     function updateFullDesc(dia, v) {
         const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
         const p1 = document.getElementById(`${dia}-pop-1`)?.value, p2 = document.getElementById(`${dia}-pop-2`)?.value;
