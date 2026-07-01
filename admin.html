@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Meteorológico UNLP</title>
+    <title>Admin Meteorológico UNLP | IG Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -43,8 +43,8 @@
         .exporting .header-left-logos { transform: translateY(-2px); }
         .logo-fcag { height: 65px; object-fit: contain; flex-shrink: 0; }
         
-        /* MODIFICADO: Logo de Pronóstico más grande (de 80px a 100px) */
-        .logo-prono { height: 100px; width: 100px; object-fit: contain; border-radius: 50%; flex-shrink: 0; transform: translateY(2px); margin: 0 5px; }
+        /* MODIFICADO: Logo de Pronóstico ajustado para que no se salga de la capsula */
+        .logo-prono { height: 85px; width: 85px; object-fit: contain; border-radius: 50%; flex-shrink: 0; margin: 0 8px; }
         
         .logo-unlp { height: 75px; object-fit: contain; flex-shrink: 0; z-index: 2; transform: translateY(2px); }
         .header-capsule h1 { font-size: 58px; font-weight: 900; margin: 0; color: var(--unlp-blue); text-transform: uppercase; letter-spacing: -2px; line-height: 1; z-index: 1; }
@@ -154,6 +154,8 @@
     <div id="last-pub-panel" class="pub-status-panel">
         <strong>Última en sistema:</strong> <span id="last-pub-time">Buscando...</span> <span id="last-pub-badge" class="pub-badge" style="display:none;">CORRECCIÓN</span><br>
         <strong>Autor:</strong> <span id="last-pub-author">--</span>
+        <!-- NUEVO BOTON PARA CARGAR DESDE LA BASE DE DATOS -->
+        <button id="btn-load-db" class="btn btn-p1" style="display:none; padding: 6px; font-size: 0.75em; margin-top: 10px; margin-bottom: 0;" onclick="loadForecastFromDB()">⬇️ CARGAR ESTOS DATOS AL FORMULARIO</button>
     </div>
 
     <div class="field-group">
@@ -614,14 +616,17 @@
         saveDraft();
     }
 
+    // MODIFICADO: Se corrigió la lógica para que el '°' NO aparezca en la hora (excluyendo out-hora)
     function up(id, v) {
-        let val = v ? v.trim() : '--';
-        if((id.includes('min') || id.includes('max') || id.includes('t')) && !id.includes('sub') && val !== '--') val += '°';
+        let val = v ? String(v).trim() : '--';
+        const isTemp = id.includes('min') || id.includes('max') || id.match(/-t[1-4]$/);
+        if(isTemp && !id.includes('sub') && val !== '--') val += '°';
         if(id.includes('sub') && val !== '--') val += '*';
         const el = document.getElementById(id);
         if(el) el.innerText = val;
     }
 
+    function updateFullDesc(dia, v) {
     function updateFullDesc(dia, v) {
         const target = document.getElementById(`${dia}-w1`), container = document.getElementById(`${dia}-desc-container`);
         const p1 = document.getElementById(`${dia}-pop-1`)?.value, p2 = document.getElementById(`${dia}-pop-2`)?.value;
@@ -637,25 +642,31 @@
         saveDraft();
     }
 
+    // MODIFICADO: Se agrega el boton y se guarda en memoria el ultimo pronóstico
     function fetchLastPublication(city) {
         const panel = document.getElementById('last-pub-panel');
         const timeSpan = document.getElementById('last-pub-time');
         const authorSpan = document.getElementById('last-pub-author');
         const badge = document.getElementById('last-pub-badge');
+        const btnLoad = document.getElementById('btn-load-db');
 
         panel.style.display = 'block';
         timeSpan.innerText = 'Cargando...';
         authorSpan.innerText = '--';
         badge.style.display = 'none';
+        btnLoad.style.display = 'none';
+        window.lastFetchedForecast = null;
 
         const callbackName = 'jsonp_admin_' + Math.round(100000 * Math.random());
         window[callbackName] = function(data) {
             delete window[callbackName];
             document.body.removeChild(script);
             if(data && !data.error) {
+                window.lastFetchedForecast = data; // Guardamos en memoria por si el usuario lo quiere cargar
                 timeSpan.innerText = `${data.forecast_date} a las ${data.emission_time.substring(0,5)} hs`;
                 authorSpan.innerText = data.publicado_por || 'Equipo FCAG';
                 badge.style.display = data.es_correccion === "SI" || data.es_correccion === true ? 'inline-block' : 'none';
+                btnLoad.style.display = 'block'; // Mostramos el botón de carga
             } else {
                 timeSpan.innerText = 'Sin publicaciones previas';
                 authorSpan.innerText = '--';
@@ -665,6 +676,85 @@
         const script = document.createElement('script');
         script.src = `${GOOGLE_APP_URL}?city=${encodeURIComponent(city)}&callback=${callbackName}&_t=${Date.now()}`;
         document.body.appendChild(script);
+    }
+
+    // NUEVO: Función para rellenar automáticamente el formulario desde la Base de Datos
+    function loadForecastFromDB() {
+        const data = window.lastFetchedForecast;
+        if (!data || data.error) return;
+
+        if(!confirm("¿Cargar los datos de la última publicación? Esto reemplazará lo que tengas editado en pantalla.")) return;
+
+        if(data.publicado_por) document.getElementById('in-publicado-por').value = data.publicado_por;
+        if(data.es_correccion !== undefined) document.getElementById('chk-correccion').checked = (data.es_correccion === "SI" || data.es_correccion === true);
+        
+        if(data.emission_time) {
+            let hm = data.emission_time.substring(0,5); 
+            document.getElementById('in-hora-emision').value = hm;
+            up('out-hora', hm + ' hs');
+        }
+
+        if(data.forecast_date) {
+            const parts = data.forecast_date.split('-');
+            if(parts.length === 3) {
+                const ms = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+                const yr = parts[0].slice(-2);
+                const mo = ms[parseInt(parts[1])-1];
+                const dy = parts[2];
+                const formatted = `${dy}/${mo}/${yr}`;
+                document.getElementById('in-fecha-emision').value = formatted;
+                updateDateVal(formatted);
+            }
+        }
+
+        const configs = [
+            {id: 'h', idx: 0, maxTramos: 3},
+            {id: 'm', idx: 1, maxTramos: 4},
+            {id: 'd3', idx: 2, maxTramos: 2},
+            {id: 'd4', idx: 3, maxTramos: 2}
+        ];
+
+        const setVal = (elId, val) => { const el = document.getElementById(elId); if(el && val !== null && val !== undefined) el.value = val; };
+
+        configs.forEach(conf => {
+            const dayData = data.daily_forecasts[conf.idx];
+            if(!dayData) return;
+
+            setVal(`in-${conf.id}-min-urb`, dayData.temp_min);
+            setVal(`in-${conf.id}-max-urb`, dayData.temp_max);
+            setVal(`in-${conf.id}-min-sub`, dayData.temp_min_suburban);
+            setVal(`in-${conf.id}-max-sub`, dayData.temp_max_suburban);
+            
+            updateTempField(conf.id, 'min', 'urb');
+            updateTempField(conf.id, 'max', 'urb');
+            updateTempField(conf.id, 'min', 'sub');
+            updateTempField(conf.id, 'max', 'sub');
+
+            for(let i=0; i<conf.maxTramos; i++) {
+                const tramoIdx = i+1;
+                const pData = dayData.period_forecasts[i];
+                if(!pData) continue;
+
+                let skyVal = pData.precipitation_description || pData.sky_condition || "";
+                setVal(`${conf.id}-sky-select-${tramoIdx}`, skyVal.toLowerCase());
+                setVal(`${conf.id}-pop-${tramoIdx}`, pData.probability_of_precipitation || "");
+                
+                if(conf.id === 'h' || conf.id === 'm') {
+                    setVal(`${conf.id}-temp-${tramoIdx}`, pData.temperature);
+                    updatePeriodTemp(conf.id, tramoIdx);
+                }
+
+                setVal(`${conf.id}-v-i${tramoIdx}`, pData.wind_intensity || "");
+                setVal(`${conf.id}-v-d${tramoIdx}`, pData.wind_direction || "");
+                setVal(`${conf.id}-rafagas-${tramoIdx}`, pData.wind_gusts || "");
+
+                updateSky(conf.id, tramoIdx);
+                updateWind(conf.id, tramoIdx);
+            }
+        });
+
+        saveDraft();
+        showToast("Datos restaurados desde la base de datos con éxito.");
     }
 
     function updateCity(v) {
